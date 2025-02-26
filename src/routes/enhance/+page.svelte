@@ -6,6 +6,11 @@
   import ModelZone from './model-zone.svelte';
   import { api } from '$lib/api/api';
   import ErrorZone from './error-zone.svelte';
+  import PreviewZone from './preview-zone.svelte';
+  import { formatEnhancedFilename, formatModel, formatPercentage } from '$lib/utils/format';
+  import DownloadZone from './download-zone.svelte';
+  import DownloadingZone from './downloading-zone.svelte';
+  import EnhancedZone from './enhanced-zone.svelte';
 
   // --- Internal ---
 
@@ -16,6 +21,12 @@
   let timerId: number;
   let errorTitle = '';
   let errorMessage = '';
+
+  let previewContainer: HTMLElement;
+  let previewZone: PreviewZone;
+  let downloadingMessage = '';
+  let downloadUrl: string;
+  let downloadName: string;
 
   let zone2 = svelteFsm('waiting', {
     waiting: {
@@ -46,10 +57,19 @@
         return 'waiting';
       },
       reset: 'waiting',
+      done: () => {
+        return 'enhanced';
+      },
       error: (err: string) => {
         errorTitle = 'Enhancement failed';
         errorMessage = err;
         return 'errored';
+      }
+    },
+    enhanced: {
+      reset: () => {
+        zone3.hide();
+        return 'waiting';
       }
     },
     errored: {
@@ -62,11 +82,30 @@
       show: 'previewing'
     },
     previewing: {
-      download: 'downloading',
+      _enter: () => {
+        setTimeout(() => {
+          previewContainer.scrollIntoView({ behavior: 'smooth' });
+        }, 1);
+      },
+      download: (mix: number) => {
+        handleDownload(mix);
+        return 'generatingDownload';
+      },
       hide: 'hidden'
     },
-    downloading: {
+    generatingDownload: {
+      done: 'downloadReady',
+      error: (err: string) => {
+        errorTitle = 'Download failed';
+        errorMessage = err;
+        return 'errored';
+      }
+    },
+    downloadReady: {
       hide: 'hidden'
+    },
+    errored: {
+      reset: 'hidden'
     }
   });
 
@@ -97,7 +136,7 @@
         enhancedBuffer = await api.download(generatedName);
         console.debug(`Enhancement succeeded`);
         clearInterval(timerId);
-        zone2.reset();
+        zone2.done();
         zone3.show();
       } catch (err) {
         console.debug('Download not ready', err);
@@ -111,6 +150,21 @@
 
   function stopPolling() {
     clearInterval(timerId);
+  }
+
+  async function handleDownload(mix: number) {
+    try {
+      downloadingMessage = `Generating final audio at ${formatPercentage(mix)} enhancement...`;
+      downloadUrl = await previewZone.generateDownload();
+      const modelName = formatModel(model);
+      downloadName = formatEnhancedFilename(filename, mix, modelName, '.wav');
+      zone3.done();
+    } catch (err) {
+      console.error('Generating download failed with error:', err);
+      zone3.error(
+        'Something went wrong when generating the mixed file for download. Please try again later.'
+      );
+    }
   }
 </script>
 
@@ -134,15 +188,28 @@
       <UploadingZone filename={filename!} />
     {:else if $zone2 === 'enhancing'}
       <EnhancingZone filename={filename!} on:cancel={() => zone2.cancel()} />
+    {:else if $zone2 === 'enhanced'}
+      <EnhancedZone filename={filename!} on:reset={() => zone2.reset()} />
     {/if}
   </div>
 
   {#if $zone3 !== 'hidden'}
-    <div class="mt-12 w-full">
+    <div class="mt-12 w-full" bind:this={previewContainer}>
       {#if $zone3 === 'previewing'}
-        <p>Preview of {filename} {originalBuffer} {enhancedBuffer}</p>
-      {:else if $zone3 === 'downloading'}
-        <p>Downloading mixed {filename}</p>
+        <PreviewZone
+          filename={filename!}
+          {originalBuffer}
+          {enhancedBuffer}
+          bind:this={previewZone}
+          on:download={({ detail: mix }: CustomEvent<number>) => zone3.download(mix)}
+        />
+      {:else if $zone3 === 'generatingDownload'}
+        <DownloadingZone message={downloadingMessage} />
+      {:else if $zone3 === 'downloadReady'}
+        <DownloadZone filename={filename!} {downloadUrl} {downloadName} />
+      {:else if $zone3 === 'errored'}
+        <!-- TODO: fix shared error strings -->
+        <ErrorZone title={errorTitle} {errorMessage} on:reset={() => zone3.reset()} />
       {/if}
     </div>
   {/if}

@@ -25,6 +25,6 @@
       {errorMessage}
     </p>
 
-    <Button class="mt-12" on:click={() => dispatch('reset')}>Go back</Button>
+    <Button size="sm" class="mt-12" on:click={() => dispatch('reset')}>Go back</Button>
   </div>
 </Zone>

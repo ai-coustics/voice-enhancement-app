@@ -75,7 +75,7 @@
 
       <h2 class="mb-12 mt-6 text-center">2. Drop audio files here</h2>
 
-      <Button>Select files</Button>
+      <Button size="sm">Select files</Button>
     </div>
   </Dropzone>
 </Zone>
