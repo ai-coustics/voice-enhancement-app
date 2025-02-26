@@ -1,7 +1,7 @@
 <script>
-  // TODO: use our styling
+  import preset from '$lib/ui/tailwind-preset';
 
-  export let color = '#FF3E00';
+  export let color = preset.theme.colors['salmon'];
   export let unit = 'px';
   export let duration = '0.75s';
   export let size = 60;

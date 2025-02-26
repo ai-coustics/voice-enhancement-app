@@ -1,43 +1,19 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import Dropzone from 'svelte-file-dropzone';
-
   import Icon from '$lib/ui/display/icon.svelte';
   import Button from '$lib/ui/buttons/button.svelte';
   import { formatDuration } from '$lib/utils/format';
   import Zone from '$lib/ui/display/zone.svelte';
   import Upload from '$lib/ui/icons/upload.svelte';
-
-  export const ALLOWED_FILE_TYPES = [
-    'audio/aac',
-    'audio/aacp',
-    'audio/aiff',
-    'audio/m4a',
-    'audio/mp3',
-    'audio/mp4',
-    'audio/mpa-robust',
-    'audio/MPA',
-    'audio/mpeg',
-    'audio/ogg',
-    'audio/opus',
-    'audio/vnd.wave',
-    'audio/wav',
-    'audio/wave',
-    'audio/x-aiff',
-    'audio/x-m4a',
-    'audio/x-wav'
-  ];
-
-  const MAX_UPLOAD_DURATION = 60 * 60; // in seconds
+  import { ALLOWED_FILE_TYPES, MAX_UPLOAD_DURATION } from '../../constants';
 
   const dispatch = createEventDispatcher<{
     accepted: File;
     rejected: string;
   }>();
 
-  let isDragEnter: boolean;
-  let filesInputElement: HTMLElement;
-  let files: File[] = [];
+  let isDraggingOver: boolean;
 
   async function getTotalDuration(files: File[]) {
     const promises = Array.from(files).map((file) => {
@@ -59,54 +35,46 @@
     return totalSeconds;
   }
 
-  async function onFilesChanged(event: any) {
-    const isDropzone = event.detail;
-    files = Array.from(isDropzone ? event.detail.acceptedFiles : event.target.files);
+  async function onDrop(event: any) {
+    const { acceptedFiles } = event.detail;
 
-    if (files.length === 0) {
+    if (acceptedFiles.length === 0) {
       return;
     }
+    const file = acceptedFiles[0];
 
-    const totalDuration = await getTotalDuration(files);
+    const totalDuration = await getTotalDuration(file);
     if (totalDuration > MAX_UPLOAD_DURATION) {
       dispatch(
         'rejected',
-        `The total duration of the selected files is ${formatDuration(totalDuration, 'h:m:s')}, ` +
+        `The duration of the selected file is ${formatDuration(totalDuration, 'h:m:s')}, ` +
           `which exceeds the maximum upload limit of ${formatDuration(MAX_UPLOAD_DURATION, 'h:m:s')}.`
       );
       return;
     }
 
-    dispatch('accepted', files[0]);
+    dispatch('accepted', file);
   }
 </script>
 
-<Zone dashed class={isDragEnter ? 'border-royal-blue' : ''}>
+<Zone dashed class={isDraggingOver ? 'border-royal-blue' : ''}>
+  <!-- Important that Dropzone covers entire zone for drop handling -->
   <Dropzone
-    containerClasses="!border-transparent !bg-transparent"
-    inputElement={filesInputElement}
+    disableDefaultStyles
+    containerClasses="w-full"
     accept={ALLOWED_FILE_TYPES.join(',')}
     multiple={false}
-    on:drop={onFilesChanged}
-    on:dragenter={() => (isDragEnter = true)}
-    on:dragleave={() => (isDragEnter = false)}
+    on:drop={onDrop}
+    on:dragenter={() => (isDraggingOver = true)}
+    on:dragleave={() => (isDraggingOver = false)}
   >
-    <input
-      hidden
-      multiple
-      type="file"
-      accept={ALLOWED_FILE_TYPES.join(',')}
-      on:change={onFilesChanged}
-      bind:this={filesInputElement}
-    />
+    <div class="flex flex-col items-center p-9">
+      <Icon size="lg" class="mt-2 text-flamingo">
+        <Upload />
+      </Icon>
 
-    <Icon size="lg" class="mt-6 text-flamingo">
-      <Upload />
-    </Icon>
+      <h2 class="mb-12 mt-6 text-center">2. Drop audio files here</h2>
 
-    <h2 class="m-6 text-center">2. Drop audio files here</h2>
-
-    <div class="px-24 sm:p-0">
       <Button>Select files</Button>
     </div>
   </Dropzone>
