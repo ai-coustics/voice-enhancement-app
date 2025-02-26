@@ -15,6 +15,7 @@ const preset = {
 
       // Accents, pink
       'misty-rose': 'hsl(3, 100%, 92%)',
+      rose: 'hsl(3, 100%, 85%)',
       salmon: 'hsl(1, 100%, 79%)',
       flamingo: 'hsl(1, 77%, 70%)',
 
