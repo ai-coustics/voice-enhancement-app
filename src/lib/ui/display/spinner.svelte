@@ -24,6 +24,8 @@
     border-image: initial;
     border-radius: 50%;
     animation: var(--duration) linear 0s infinite normal none running rotate;
+    flex-shrink: 0;
+    flex-grow: 0;
   }
   .pause-animation {
     animation-play-state: paused;

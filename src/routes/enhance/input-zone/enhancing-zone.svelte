@@ -14,10 +14,10 @@
 
 <div class="flex flex-col items-center gap-12 text-center">
   <Stepper current={1} />
-  <div class="flex flex-col items-center gap-3">
-    <div class="flex items-center gap-3">
+  <div class="flex max-w-full flex-col items-center gap-3">
+    <div class="flex max-w-full items-center gap-3">
       <Spinner size={18} />
-      <h3 class="m-0 font-normal [word-break:break-word]">
+      <h3 class="trunc m-0 font-normal">
         Enhancing <span class="font-semibold">{filename}</span>...
       </h3>
     </div>

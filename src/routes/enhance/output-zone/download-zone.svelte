@@ -38,7 +38,7 @@
     <Icon size="xl" class="mb-1">
       <Download />
     </Icon>
-    <p class="max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
+    <p class="trunc font-semibold">
       {downloadName}
     </p>
   </Link>

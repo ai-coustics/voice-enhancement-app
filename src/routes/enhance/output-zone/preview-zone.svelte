@@ -36,8 +36,8 @@
 
   <h2 class="mb-6 mt-6 text-center">3. Preview</h2>
 
-  <div class="max-w-[460px]">
-    <h4 class="mb-1 shrink-0 grow-0 font-normal">{filename}</h4>
+  <div class="w-full max-w-[460px]">
+    <h4 class="trunc mb-1 shrink-0 grow-0 font-normal">{filename}</h4>
 
     <AudioPreview
       {originalBuffer}
