@@ -120,7 +120,7 @@
     {:else if $phase === 'generatingDownload'}
       <DownloadingZone message={downloadingMessage} on:cancel={() => phase.cancel()} />
     {:else if $phase === 'downloadReady'}
-      <DownloadZone {filename} {downloadUrl} {downloadName} on:reset={() => phase.reset()} />
+      <DownloadZone {downloadUrl} {downloadName} on:reset={() => phase.reset()} />
     {:else if $phase === 'errored'}
       <ErrorZone title={errorTitle} {errorMessage} on:reset={() => phase.reset()} />
     {/if}

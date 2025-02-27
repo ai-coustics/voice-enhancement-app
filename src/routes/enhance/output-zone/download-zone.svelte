@@ -8,7 +8,6 @@
 
   // --- Exports ---
 
-  export let filename: string;
   export let downloadUrl: string;
   export let downloadName: string;
 
