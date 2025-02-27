@@ -5,12 +5,14 @@
   import AudioPreview from '$lib/ui/media/audio-preview.svelte';
   import Speaker from '$lib/ui/icons/speaker.svelte';
   import Information from '$lib/ui/icons/information.svelte';
+  import { twMerge } from 'tailwind-merge';
 
   // --- Exports ---
 
   export let filename: string;
   export let originalBuffer: ArrayBuffer;
   export let enhancedBuffer: ArrayBuffer;
+  export let hide = false;
 
   const dispatch = createEventDispatcher<{
     download: number;
@@ -29,7 +31,7 @@
   let audioPreview: AudioPreview;
 </script>
 
-<div class="flex w-full flex-col items-center">
+<div class={twMerge('flex w-full flex-col items-center', hide && 'hidden')}>
   <Icon size="lg" class="mt-2 text-flamingo">
     <Speaker />
   </Icon>

@@ -109,15 +109,21 @@
 
 <div class={twMerge('w-full', className)} bind:this={container}>
   <Zone class={twMerge('h-full', borderClass)}>
-    {#if $phase === 'previewing'}
-      <PreviewZone
-        {filename}
-        {originalBuffer}
-        {enhancedBuffer}
-        bind:this={previewZone}
-        on:download={({ detail: mix }: CustomEvent<number>) => phase.download(mix)}
-      />
-    {:else if $phase === 'generatingDownload'}
+    <!-- 
+      Do not let PreviewZone get unmounted, just hide it instead when moving to the other phases.
+      Reason being that when the internal players decode the buffers, they get detached and can't
+      be reused. So when we return to previewing after a download, we'd get an error about 
+      ArrayBuffers being detached if we let it unmount/remount.
+    -->
+    <PreviewZone
+      {filename}
+      {originalBuffer}
+      {enhancedBuffer}
+      hide={$phase !== 'previewing'}
+      bind:this={previewZone}
+      on:download={({ detail: mix }: CustomEvent<number>) => phase.download(mix)}
+    />
+    {#if $phase === 'generatingDownload'}
       <DownloadingZone message={downloadingMessage} on:cancel={() => phase.cancel()} />
     {:else if $phase === 'downloadReady'}
       <DownloadZone {downloadUrl} {downloadName} on:reset={() => phase.reset()} />
