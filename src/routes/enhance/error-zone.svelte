@@ -2,7 +2,7 @@
   import Icon from '$lib/ui/display/icon.svelte';
   import { createEventDispatcher } from 'svelte';
   import Button from '$lib/ui/buttons/button.svelte';
-  import Upload from '$lib/ui/icons/upload.svelte';
+  import Error from '$lib/ui/icons/error.svelte';
 
   export let title: string;
   export let errorMessage: string;
@@ -12,17 +12,17 @@
   }>();
 </script>
 
-<div class="flex flex-col items-center p-9">
-  <Icon size="lg" class="mt-2 text-error-red-fg">
-    <!-- TODO: fix -->
-    <Upload />
+<div class="flex flex-col items-center gap-12 text-center">
+  <Icon size="xl" class="mt-2 text-error-red-fg">
+    <Error />
   </Icon>
 
-  <h2 class="m-6 text-center">{title}</h2>
+  <div class="flex flex-col items-center gap-3">
+    <h2>{title}</h2>
+    <p class="text-mineshaft">
+      {errorMessage}
+    </p>
+  </div>
 
-  <p class="text-center text-sm text-error-red-fg">
-    {errorMessage}
-  </p>
-
-  <Button size="sm" class="mt-12" on:click={() => dispatch('reset')}>Go back</Button>
+  <Button size="sm" on:click={() => dispatch('reset')}>Go back</Button>
 </div>

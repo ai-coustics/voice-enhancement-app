@@ -61,7 +61,7 @@
 <!-- Important that Dropzone covers entire parent for drop handling -->
 <Dropzone
   disableDefaultStyles
-  containerClasses="w-full h-full p-9 flex flex-col items-center gap-12"
+  containerClasses="w-full h-full p-9 flex flex-col items-center gap-12 text-center"
   accept={ALLOWED_FILE_TYPES.join(',')}
   multiple={false}
   on:drop={onDrop}
@@ -73,7 +73,7 @@
   </Icon>
 
   <div class="flex flex-col items-center gap-3">
-    <h2 class="text-center">2. Drop file here</h2>
+    <h2>2. Drop file here</h2>
     <p class="text-mineshaft">Select an audio file to enhance.</p>
   </div>
 
