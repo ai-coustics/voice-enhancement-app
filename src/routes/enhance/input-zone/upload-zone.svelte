@@ -6,7 +6,7 @@
   import { formatDuration } from '$lib/utils/format';
   import Zone from '$lib/ui/display/zone.svelte';
   import Upload from '$lib/ui/icons/upload.svelte';
-  import { ALLOWED_FILE_TYPES, MAX_UPLOAD_DURATION } from '../../constants';
+  import { ALLOWED_FILE_TYPES, MAX_UPLOAD_DURATION } from '../../../constants';
 
   const dispatch = createEventDispatcher<{
     accepted: File;

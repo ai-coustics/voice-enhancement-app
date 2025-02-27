@@ -4,6 +4,7 @@
   import Zone from '$lib/ui/display/zone.svelte';
   import Link from '$lib/ui/navigation/link.svelte';
   import Download from '$lib/ui/icons/download.svelte';
+  import Button from '$lib/ui/buttons/button.svelte';
 
   // --- Exports ---
 
@@ -13,6 +14,7 @@
 
   const dispatch = createEventDispatcher<{
     downloaded: void;
+    reset: void;
   }>();
 
   // --- Internal ---
@@ -25,7 +27,7 @@
     </h1>
 
     <Link
-      class="my-24 self-center"
+      class="my-12 self-center"
       href={downloadUrl}
       download={downloadName}
       target="new-tab"
@@ -40,5 +42,7 @@
         <p>Download enhanced file</p>
       </div>
     </Link>
+
+    <Button size="sm" on:click={() => dispatch('reset')}>Preview</Button>
   </div>
 </Zone>
