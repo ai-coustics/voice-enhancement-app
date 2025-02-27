@@ -35,17 +35,18 @@
 <p class="text-sm">Upload audio files to enhance.</p>
 
 <div class="mx-auto flex max-w-[800px] flex-col items-center">
-  <div class="mt-12 w-full">
-    <ModelZone bind:model />
-  </div>
+  <ModelZone class="mt-12" bind:model />
 
-  <div class="mt-12 w-full">
-    <InputZone {model} on:enhanced={handleEnhanced} on:reset={handleReset} />
-  </div>
+  <InputZone class="mt-12 h-[400px]" {model} on:enhanced={handleEnhanced} on:reset={handleReset} />
 
   {#if hasEnhanced}
-    <div class="mt-12 w-full">
-      <OutputZone {filename} {originalBuffer} {enhancedBuffer} {model} on:reset={handleReset} />
-    </div>
+    <OutputZone
+      class="mt-12 h-[540px]"
+      {filename}
+      {originalBuffer}
+      {enhancedBuffer}
+      {model}
+      on:reset={handleReset}
+    />
   {/if}
 </div>

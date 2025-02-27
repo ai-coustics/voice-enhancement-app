@@ -7,9 +7,13 @@
   import ErrorZone from '../error-zone.svelte';
   import EnhancedZone from './enhanced-zone.svelte';
   import { api } from '$lib/api/api';
+  import Zone from '$lib/ui/display/zone.svelte';
+  import { twMerge } from 'tailwind-merge';
 
   // --- Exports ---
 
+  let className = '';
+  export { className as class };
   export let model: string;
 
   const dispatch = createEventDispatcher<{
@@ -26,6 +30,7 @@
   let timerId: number;
   let errorTitle = '';
   let errorMessage = '';
+  let isDraggingOver = false;
 
   let phase = svelteFsm('waiting', {
     waiting: {
@@ -121,13 +126,29 @@
     errorTitle = title;
     errorMessage = message;
   }
+
+  function getBorderClass(phase: string, isDraggingOver: boolean) {
+    if (phase === 'waiting') {
+      return isDraggingOver ? 'border-dashed border-royal-blue' : 'border-dashed';
+    } else if (phase === 'uploading' || phase === 'enhancing') {
+      return 'border-royal-blue';
+    } else if (phase === 'errored') {
+      return 'border-error-red-fg';
+    }
+    return '';
+  }
+
+  // --- Reactives ---
+
+  $: borderClass = getBorderClass($phase, isDraggingOver);
 </script>
 
-<div class="w-full">
+<Zone class={twMerge(borderClass, className, $phase === 'waiting' ? 'p-0' : '')}>
   {#if $phase === 'waiting'}
     <UploadZone
       on:accepted={(file) => phase.upload(file.detail)}
       on:rejected={(reason) => phase.reject(reason.detail)}
+      bind:isDraggingOver
     />
   {:else if $phase === 'uploading'}
     <UploadingZone {filename} on:cancel={() => phase.cancel()} />
@@ -138,4 +159,4 @@
   {:else if $phase === 'errored'}
     <ErrorZone title={errorTitle} {errorMessage} on:reset={() => phase.reset()} />
   {/if}
-</div>
+</Zone>

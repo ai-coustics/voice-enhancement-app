@@ -5,6 +5,8 @@
   import Badge from '$lib/ui/display/badge.svelte';
   import Zone from '$lib/ui/display/zone.svelte';
 
+  let className = '';
+  export { className as class };
   export let model: string;
 
   const options = [
@@ -30,8 +32,8 @@
   }
 </script>
 
-<Zone class="border-2 border-cloud">
-  <div class="flex w-full flex-col items-center gap-2 px-9 py-9">
+<Zone class={className}>
+  <div class="flex w-full flex-col items-center gap-2">
     <Icon size="xl" class="mt-2 text-flamingo">
       <Bird />
     </Icon>

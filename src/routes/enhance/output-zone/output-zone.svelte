@@ -6,9 +6,13 @@
   import DownloadingZone from './downloading-zone.svelte';
   import ErrorZone from '../error-zone.svelte';
   import { formatEnhancedFilename, formatModel, formatPercentage } from '$lib/utils/format';
+  import Zone from '$lib/ui/display/zone.svelte';
+  import { twMerge } from 'tailwind-merge';
 
   // --- Exports ---
 
+  let className = '';
+  export { className as class };
   export let filename: string;
   export let originalBuffer: ArrayBuffer;
   export let enhancedBuffer: ArrayBuffer;
@@ -56,6 +60,22 @@
 
   // --- Helpers ---
 
+  function setError(title: string, message: string) {
+    errorTitle = title;
+    errorMessage = message;
+  }
+
+  function getBorderClass(phase: string) {
+    if (phase === 'generatingDownload') {
+      return 'border-royal-blue';
+    } else if (phase === 'errored') {
+      return 'border-error-red-fg';
+    }
+    return '';
+  }
+
+  // --- Event handlers ---
+
   async function handleDownload(mix: number) {
     try {
       downloadingMessage = `Generating final audio at ${formatPercentage(mix)} enhancement...`;
@@ -71,32 +91,33 @@
     }
   }
 
-  function setError(title: string, message: string) {
-    errorTitle = title;
-    errorMessage = message;
-  }
-
   // --- Lifecycle ---
 
   onMount(() => {
     container.scrollIntoView({ behavior: 'smooth' });
   });
+
+  // --- Reactives ---
+
+  $: borderClass = getBorderClass($phase);
 </script>
 
-<div class="w-full" bind:this={container}>
-  {#if $phase === 'previewing'}
-    <PreviewZone
-      {filename}
-      {originalBuffer}
-      {enhancedBuffer}
-      bind:this={previewZone}
-      on:download={({ detail: mix }: CustomEvent<number>) => phase.download(mix)}
-    />
-  {:else if $phase === 'generatingDownload'}
-    <DownloadingZone message={downloadingMessage} />
-  {:else if $phase === 'downloadReady'}
-    <DownloadZone {filename} {downloadUrl} {downloadName} on:reset={() => phase.reset()} />
-  {:else if $phase === 'errored'}
-    <ErrorZone title={errorTitle} {errorMessage} on:reset={() => phase.reset()} />
-  {/if}
+<div class={twMerge('w-full', className)} bind:this={container}>
+  <Zone class={twMerge('h-full', borderClass)}>
+    {#if $phase === 'previewing'}
+      <PreviewZone
+        {filename}
+        {originalBuffer}
+        {enhancedBuffer}
+        bind:this={previewZone}
+        on:download={({ detail: mix }: CustomEvent<number>) => phase.download(mix)}
+      />
+    {:else if $phase === 'generatingDownload'}
+      <DownloadingZone message={downloadingMessage} />
+    {:else if $phase === 'downloadReady'}
+      <DownloadZone {filename} {downloadUrl} {downloadName} on:reset={() => phase.reset()} />
+    {:else if $phase === 'errored'}
+      <ErrorZone title={errorTitle} {errorMessage} on:reset={() => phase.reset()} />
+    {/if}
+  </Zone>
 </div>
