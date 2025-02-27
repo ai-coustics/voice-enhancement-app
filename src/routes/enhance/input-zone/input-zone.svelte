@@ -100,42 +100,50 @@
   }
 
   async function startPolling(generatedName: string) {
-    const interval = 10 * 1000; // ms
-    const timeout = 60 * 60 * 1000; // ms
+    // All in ms
+    const initialInterval = 5 * 1000;
+    const backoffFactor = 1.25;
+    const maxInterval = 5 * 60 * 1000;
+    const timeout = 60 * 60 * 1000;
     const startTime = Date.now();
 
-    timerId = window.setInterval(async () => {
-      try {
-        enhancedBuffer = await api.download(generatedName);
-        console.debug(`Enhancement succeeded`);
-        clearInterval(timerId);
-        phase.complete();
-        dispatch('enhanced', { filename, originalBuffer, enhancedBuffer });
-      } catch (err: unknown) {
-        if (err instanceof RequestError) {
-          const error = err as RequestError;
-          if (error.statusCode === 412) {
-            const didTimeout = Date.now() - startTime > timeout;
-            if (!didTimeout) {
-              console.debug('Download not ready, retrying...');
+    let currentInterval = initialInterval;
+
+    const scheduleNext = () => {
+      timerId = window.setTimeout(async () => {
+        try {
+          enhancedBuffer = await api.download(generatedName);
+          console.debug(`Enhancement succeeded`);
+          phase.complete();
+          dispatch('enhanced', { filename, originalBuffer, enhancedBuffer });
+        } catch (err: unknown) {
+          if (err instanceof RequestError) {
+            const error = err as RequestError;
+            if (error.statusCode === 412) {
+              const didTimeout = Date.now() - startTime > timeout;
+              if (!didTimeout) {
+                currentInterval = Math.min(currentInterval * backoffFactor, maxInterval);
+                console.debug(`Download not ready, retrying in ${currentInterval / 1000}s...`);
+                scheduleNext();
+                return;
+              }
+              phase.error('The enhancement request timed out. Please try again later.');
               return;
             }
-            clearInterval(timerId);
-            phase.error('The enhancement request timed out. Please try again later.');
-            return;
           }
+          console.error(err);
+          phase.error(
+            'Something went wrong when trying to enhance the file. Please try again later.'
+          );
         }
-        clearInterval(timerId);
-        console.error(err);
-        phase.error(
-          'Something went wrong when trying to enhance the file. Please try again later.'
-        );
-      }
-    }, interval);
+      }, currentInterval);
+    };
+
+    scheduleNext();
   }
 
   function stopPolling() {
-    clearInterval(timerId);
+    clearTimeout(timerId);
   }
 
   function setError(title: string, message: string) {
