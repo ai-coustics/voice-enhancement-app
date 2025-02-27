@@ -90,6 +90,7 @@
       originalBuffer = await file.arrayBuffer();
       const generatedName = await api.enhance({
         file,
+        enhancementLevel: 1,
         modelArch: model
       });
       phase.enhance(generatedName);

@@ -20,7 +20,7 @@ export class AicousticsApi {
       loudness_target_level: payload.loudnessTargetLevel?.toString(),
       loudness_peak_limit: payload.loudnessPeakLimit?.toString(),
       enhancement_level: payload.enhancementLevel?.toString() ?? 1,
-      transcode_kind: payload.transcodeKind ?? "WAV",
+      transcode_kind: payload.transcodeKind ?? "MP3",
       model_arch: payload.modelArch ?? "FINCH"
     }
 
