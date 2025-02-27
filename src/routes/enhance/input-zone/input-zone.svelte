@@ -9,6 +9,7 @@
   import { api } from '$lib/api/api';
   import Zone from '$lib/ui/display/zone.svelte';
   import { twMerge } from 'tailwind-merge';
+  import { RequestError } from '$lib/api/request';
 
   // --- Exports ---
 
@@ -110,13 +111,25 @@
         clearInterval(timerId);
         phase.complete();
         dispatch('enhanced', { filename, originalBuffer, enhancedBuffer });
-      } catch (err: any) {
-        // TODO: distinguish 412 from other errors
-        console.debug('Download not ready', err);
-        if (Date.now() - startTime > timeout) {
-          clearInterval(timerId);
-          phase.error('The enhancement request timed out. Please try again later.');
+      } catch (err: unknown) {
+        if (err instanceof RequestError) {
+          const error = err as RequestError;
+          if (error.statusCode === 412) {
+            const didTimeout = Date.now() - startTime > timeout;
+            if (!didTimeout) {
+              console.debug('Download not ready, retrying...');
+              return;
+            }
+            clearInterval(timerId);
+            phase.error('The enhancement request timed out. Please try again later.');
+            return;
+          }
         }
+        clearInterval(timerId);
+        console.error(err);
+        phase.error(
+          'Something went wrong when trying to enhance the file. Please try again later.'
+        );
       }
     }, interval);
   }
