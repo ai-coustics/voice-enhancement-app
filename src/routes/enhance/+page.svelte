@@ -32,12 +32,11 @@
 </script>
 
 <h1>Upload</h1>
-<p class="text-sm">Upload audio files to enhance.</p>
 
 <div class="mx-auto flex max-w-[800px] flex-col items-center">
   <ModelZone class="mt-12" bind:model />
 
-  <InputZone class="mt-12 h-[400px]" {model} on:enhanced={handleEnhanced} on:reset={handleReset} />
+  <InputZone class="mt-12 h-[340px]" {model} on:enhanced={handleEnhanced} on:reset={handleReset} />
 
   {#if hasEnhanced}
     <OutputZone

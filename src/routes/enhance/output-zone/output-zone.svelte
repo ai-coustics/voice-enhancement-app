@@ -42,6 +42,7 @@
     },
     generatingDownload: {
       complete: 'downloadReady',
+      cancel: 'previewing',
       error: (err: string) => {
         setError('Download failed', err);
         return 'errored';
@@ -80,6 +81,10 @@
     try {
       downloadingMessage = `Generating final audio at ${formatPercentage(mix)} enhancement...`;
       downloadUrl = await previewZone.generateDownload();
+      // Check cancellation
+      if ($phase !== 'generatingDownload') {
+        return;
+      }
       const modelName = formatModel(model);
       downloadName = formatEnhancedFilename(filename, mix, modelName, '.wav');
       phase.complete();
@@ -113,7 +118,7 @@
         on:download={({ detail: mix }: CustomEvent<number>) => phase.download(mix)}
       />
     {:else if $phase === 'generatingDownload'}
-      <DownloadingZone message={downloadingMessage} />
+      <DownloadingZone message={downloadingMessage} on:cancel={() => phase.cancel()} />
     {:else if $phase === 'downloadReady'}
       <DownloadZone {filename} {downloadUrl} {downloadName} on:reset={() => phase.reset()} />
     {:else if $phase === 'errored'}

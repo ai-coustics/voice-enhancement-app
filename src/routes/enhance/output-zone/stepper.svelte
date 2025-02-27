@@ -5,5 +5,5 @@
 </script>
 
 <div class="mt-6">
-  <StepIndicator steps={['Uploading', 'Enhancing', 'Done']} stepWidth={150} {current} />
+  <StepIndicator steps={['Generating', 'Done']} stepWidth={150} {current} />
 </div>

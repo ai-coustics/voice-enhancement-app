@@ -61,20 +61,21 @@
 <!-- Important that Dropzone covers entire parent for drop handling -->
 <Dropzone
   disableDefaultStyles
-  containerClasses="w-full h-full p-9"
+  containerClasses="w-full h-full p-9 flex flex-col items-center gap-12"
   accept={ALLOWED_FILE_TYPES.join(',')}
   multiple={false}
   on:drop={onDrop}
   on:dragenter={() => (isDraggingOver = true)}
   on:dragleave={() => (isDraggingOver = false)}
 >
-  <div class="flex flex-col items-center">
-    <Icon size="lg" class="mt-2 text-flamingo">
-      <Upload />
-    </Icon>
+  <Icon size="lg" class="mt-2 text-flamingo">
+    <Upload />
+  </Icon>
 
-    <h2 class="mb-12 mt-6 text-center">2. Drop audio files here</h2>
-
-    <Button size="sm">Select files</Button>
+  <div class="flex flex-col items-center gap-3">
+    <h2 class="text-center">2. Drop file here</h2>
+    <p class="text-mineshaft">Select an audio file to enhance.</p>
   </div>
+
+  <Button size="sm">Select file</Button>
 </Dropzone>

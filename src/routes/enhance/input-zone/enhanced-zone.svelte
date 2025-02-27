@@ -10,12 +10,10 @@
   }>();
 </script>
 
-<div class="flex flex-col items-center gap-11">
+<div class="flex flex-col items-center gap-12 text-center">
   <Stepper current={2} />
-  <div class="flex flex-col items-center gap-2 px-4 text-center">
-    <h3 class="font-semibold [word-break:break-word]">Finished enhancing {filename}...</h3>
-    <p class="mt-8">
-      <Button size="sm" on:click={() => dispatch('reset')}>Start over</Button>
-    </p>
-  </div>
+  <h3 class="m-0 font-normal [word-break:break-word]">
+    Finished enhancing <span class="font-semibold">{filename}</span>.
+  </h3>
+  <Button role="secondary" size="sm" on:click={() => dispatch('reset')}>Start over</Button>
 </div>

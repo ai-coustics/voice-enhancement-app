@@ -41,6 +41,9 @@
       reject: (reason: string) => {
         setError('File rejected', reason);
         return 'errored';
+      },
+      _exit: () => {
+        isDraggingOver = false;
       }
     },
     uploading: {

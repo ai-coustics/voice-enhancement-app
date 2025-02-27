@@ -4,6 +4,7 @@
   import Link from '$lib/ui/navigation/link.svelte';
   import Download from '$lib/ui/icons/download.svelte';
   import Button from '$lib/ui/buttons/button.svelte';
+  import Stepper from './stepper.svelte';
 
   // --- Exports ---
 
@@ -19,13 +20,13 @@
   // --- Internal ---
 </script>
 
-<div class="flex flex-col items-center">
-  <h1 class="shrink-0 grow-0 overflow-hidden text-ellipsis whitespace-nowrap">
-    {filename}
-  </h1>
+<div class="flex flex-col items-center gap-12 text-center">
+  <Stepper current={1} />
+
+  <h3 class="m-0 font-normal [word-break:break-word]">The enhanced file is ready to download.</h3>
 
   <Link
-    class="my-12 self-center"
+    class="flex min-w-[180px] max-w-[90%] flex-col items-center overflow-hidden rounded-2xl border-2 p-6"
     href={downloadUrl}
     download={downloadName}
     target="new-tab"
@@ -33,13 +34,16 @@
       dispatch('downloaded');
     }}
   >
-    <div class="flex flex-col items-center">
-      <Icon size="xl" class="mb-8">
-        <Download />
-      </Icon>
-      <p>Download enhanced file</p>
-    </div>
+    <p class="mb-3">Download</p>
+    <Icon size="xl" class="mb-1">
+      <Download />
+    </Icon>
+    <p class="max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
+      {downloadName}
+    </p>
   </Link>
 
-  <Button size="sm" on:click={() => dispatch('reset')}>Preview</Button>
+  <Button role="secondary" size="sm" class="mt-4" on:click={() => dispatch('reset')}
+    >Back to preview</Button
+  >
 </div>
