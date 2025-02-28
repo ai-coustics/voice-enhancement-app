@@ -1,4 +1,3 @@
-import { PUBLIC_AIC_API_ROOT, PUBLIC_AIC_API_KEY } from "$env/static/public";
 import { request } from "./request";
 
 export type EnhancementRequest = {
@@ -55,5 +54,3 @@ export class AicousticsApi {
     });
   }
 }
-
-export const api = new AicousticsApi(PUBLIC_AIC_API_ROOT, PUBLIC_AIC_API_KEY);

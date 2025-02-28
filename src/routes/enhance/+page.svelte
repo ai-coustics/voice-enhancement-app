@@ -3,6 +3,8 @@
   import OutputZone from './output-zone/output-zone.svelte';
   import ModelZone from './model-zone.svelte';
 
+  export let data;
+
   // --- Internal ---
 
   let model = 'LARK';
@@ -31,12 +33,18 @@
   }
 </script>
 
-<h1>Upload</h1>
+<h1 class="mb-12">Upload</h1>
 
 <div class="mx-auto flex max-w-[800px] flex-col items-center">
-  <ModelZone class="mt-12" bind:model />
+  <ModelZone bind:model />
 
-  <InputZone class="mt-12 h-[340px]" {model} on:enhanced={handleEnhanced} on:reset={handleReset} />
+  <InputZone
+    class="mt-12 h-[340px]"
+    {model}
+    settings={data.serverSettings}
+    on:enhanced={handleEnhanced}
+    on:reset={handleReset}
+  />
 
   {#if hasEnhanced}
     <OutputZone

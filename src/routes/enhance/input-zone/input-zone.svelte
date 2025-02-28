@@ -6,7 +6,7 @@
   import EnhancingZone from './enhancing-zone.svelte';
   import ErrorZone from '../error-zone.svelte';
   import EnhancedZone from './enhanced-zone.svelte';
-  import { api } from '$lib/api/api';
+  import { AicousticsApi } from '$lib/api/api';
   import Zone from '$lib/ui/display/zone.svelte';
   import { twMerge } from 'tailwind-merge';
   import { RequestError } from '$lib/api/request';
@@ -16,6 +16,10 @@
   let className = '';
   export { className as class };
   export let model: string;
+  export let settings: {
+    apiRoot: string;
+    apiKey: string;
+  };
 
   const dispatch = createEventDispatcher<{
     enhanced: { filename: string; originalBuffer: ArrayBuffer; enhancedBuffer: ArrayBuffer };
@@ -23,6 +27,8 @@
   }>();
 
   // --- Internal ---
+
+  const api = new AicousticsApi(settings.apiRoot, settings.apiKey);
 
   let filename = '';
   let originalBuffer: ArrayBuffer;
