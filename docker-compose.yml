@@ -4,9 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - PORT=${AIC_APP_PORT}
+        - PORT=${PORT}
     env_file:
       - .env
     ports:
-      - '${AIC_APP_PORT}:${AIC_APP_PORT}'
+      - '${PORT}:${PORT}'
     restart: unless-stopped

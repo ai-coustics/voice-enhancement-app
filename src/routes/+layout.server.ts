@@ -13,10 +13,10 @@ export async function load() {
   }
 
   // If no settings file found, we check environment variables.
-  const apiRoot = env.AIC_API_ROOT || '';
+  const apiRoot = env.AIC_API_ROOT || "https://api.ai-coustics.com/v1";
   const apiKey = env.AIC_API_KEY || '';
 
   return {
     serverSettings: { apiRoot, apiKey }
   };
-}; 
+};

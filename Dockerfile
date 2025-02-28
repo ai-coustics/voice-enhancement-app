@@ -14,8 +14,8 @@ RUN echo "Deploying..."
 COPY --from=builder /app/build build/
 COPY package.json .
 ENV NODE_ENV=production
-ARG PORT
-ENV AIC_APP_PORT=${PORT}
-EXPOSE $AIC_APP_PORT
+ARG PORT=3000
+ENV PORT=${PORT}
+EXPOSE $PORT
 RUN echo "Running..."
-CMD PORT=$AIC_APP_PORT node build
+CMD PORT=$PORT node build
