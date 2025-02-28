@@ -1,0 +1,12 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - PORT=${AIC_APP_PORT}
+    env_file:
+      - .env
+    ports:
+      - '${AIC_APP_PORT}:${AIC_APP_PORT}'
+    restart: unless-stopped

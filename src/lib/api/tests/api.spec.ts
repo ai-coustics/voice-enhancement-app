@@ -1,4 +1,4 @@
-import { PUBLIC_AIC_API_ROOT, PUBLIC_AIC_API_KEY } from '$env/static/public';
+import { env } from "$env/dynamic/private";
 import { describe, it, expect, beforeEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -16,7 +16,7 @@ describe('AicousticsApi', () => {
 
   let api: AicousticsApi;
   beforeEach(() => {
-    api = new AicousticsApi(PUBLIC_AIC_API_ROOT, PUBLIC_AIC_API_KEY);
+    api = new AicousticsApi(env.AIC_API_ROOT, env.AIC_API_KEY);
   });
 
   it('accepts an enhancement request and generates a download', async () => {

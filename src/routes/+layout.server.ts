@@ -1,4 +1,4 @@
-import { PUBLIC_AIC_API_ROOT, PUBLIC_AIC_API_KEY } from "$env/static/public";
+import { env } from "$env/dynamic/private";
 import { GET as fetchSettings } from "./server/settings/+server";
 
 export async function load() {
@@ -13,8 +13,8 @@ export async function load() {
   }
 
   // If no settings file found, we check environment variables.
-  const apiRoot = PUBLIC_AIC_API_ROOT || '';
-  const apiKey = PUBLIC_AIC_API_KEY || '';
+  const apiRoot = env.AIC_API_ROOT || '';
+  const apiKey = env.AIC_API_KEY || '';
 
   return {
     serverSettings: { apiRoot, apiKey }
