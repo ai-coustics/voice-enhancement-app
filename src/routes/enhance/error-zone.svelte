@@ -17,9 +17,9 @@
     <Error />
   </Icon>
 
-  <div class="flex flex-col items-center gap-3">
+  <div class="flex max-w-full flex-col items-center gap-3">
     <h2>{title}</h2>
-    <p class="text-mineshaft">
+    <p class="max-w-full text-mineshaft">
       {errorMessage}
     </p>
   </div>

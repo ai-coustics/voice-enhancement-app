@@ -37,7 +37,20 @@
   }
 
   async function onDrop(event: any) {
-    const { acceptedFiles } = event.detail;
+    const { acceptedFiles, fileRejections } = event.detail;
+
+    if (fileRejections.length > 0) {
+      const rejected = fileRejections[0];
+      const code = rejected.errors[0].code;
+      let reason = '';
+      if (code === 'file-invalid-type') {
+        reason = `Files of type ${rejected.file.type} are not supported. Please make sure you pick an audio file.`;
+      } else {
+        reason = "Couldn't process file. Please try a different one.";
+      }
+      dispatch('rejected', reason);
+      return;
+    }
 
     if (acceptedFiles.length === 0) {
       return;
