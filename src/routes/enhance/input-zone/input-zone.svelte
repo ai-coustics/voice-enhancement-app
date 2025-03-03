@@ -100,9 +100,23 @@
         modelArch: model
       });
       phase.enhance(generatedName);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      phase.error('Something went wrong when trying to upload the file. Please try again later.');
+
+      if (err instanceof RequestError) {
+        const error = err as RequestError;
+        if (error.statusCode === 401 || error.statusCode === 403) {
+          phase.error(
+            "Authentication with the API failed. Please make sure you've added a valid API key under Settings."
+          );
+          return;
+        }
+        if (error.statusCode === 402) {
+          phase.error("You don't have enough credits to enhance this file.");
+          return;
+        }
+      }
+      phase.error('Something went wrong when trying to upload the file.');
     }
   }
 
