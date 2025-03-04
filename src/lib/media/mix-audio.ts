@@ -1,32 +1,28 @@
 import Crunker from 'crunker';
 
 export async function mixToWav(original: AudioBuffer, enhanced: AudioBuffer, mix: number) {
-  let mixed: AudioBuffer;
+  mix = Math.max(0, Math.min(mix, 1));
 
-  if (mix > 0.999) {
-    mixed = enhanced;
-  } else {
-    const ctx = new OfflineAudioContext({
-      numberOfChannels: 2,
-      length: Math.max(original.length, enhanced.length),
-      sampleRate: enhanced.sampleRate
-    });
+  const ctx = new OfflineAudioContext({
+    numberOfChannels: 2,
+    length: Math.max(original.length, enhanced.length),
+    sampleRate: enhanced.sampleRate
+  });
 
-    const sourceNodes = [ctx.createBufferSource(), ctx.createBufferSource()];
-    sourceNodes[0].buffer = original;
-    sourceNodes[1].buffer = enhanced;
+  const sourceNodes = [ctx.createBufferSource(), ctx.createBufferSource()];
+  sourceNodes[0].buffer = original;
+  sourceNodes[1].buffer = enhanced;
 
-    const gainNodes = [ctx.createGain(), ctx.createGain()];
-    gainNodes[0].gain.value = 1 - mix;
-    gainNodes[1].gain.value = mix;
+  const gainNodes = [ctx.createGain(), ctx.createGain()];
+  gainNodes[0].gain.value = 1 - mix;
+  gainNodes[1].gain.value = mix;
 
-    for (let i = 0; i < sourceNodes.length; ++i) {
-      sourceNodes[i].connect(gainNodes[i]).connect(ctx.destination);
-      sourceNodes[i].start();
-    }
-
-    mixed = await ctx.startRendering();
+  for (let i = 0; i < sourceNodes.length; ++i) {
+    sourceNodes[i].connect(gainNodes[i]).connect(ctx.destination);
+    sourceNodes[i].start();
   }
+
+  const mixed = await ctx.startRendering();
 
   const objectUrl = createWavObjectUrl(mixed);
   return objectUrl;
