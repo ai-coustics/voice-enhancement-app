@@ -1,6 +1,6 @@
 <script lang="ts">
   import Zone from '$lib/ui/display/zone.svelte';
-  import SettingsZone from './settings-zone.svelte';
+  import Settings from './settings.svelte';
 
   export let data;
 </script>
@@ -9,6 +9,6 @@
 
 <div class="mx-auto flex max-w-[800px] flex-col items-center">
   <Zone>
-    <SettingsZone settings={data.settings} />
+    <Settings settings={data.settings} />
   </Zone>
 </div>

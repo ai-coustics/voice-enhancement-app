@@ -1,11 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import svelteFsm from 'svelte-fsm';
-  import UploadZone from './upload-zone.svelte';
-  import UploadingZone from './uploading-zone.svelte';
-  import EnhancingZone from './enhancing-zone.svelte';
-  import ErrorZone from '../error-zone.svelte';
-  import EnhancedZone from './enhanced-zone.svelte';
+  import Upload from './upload.svelte';
+  import Uploading from './uploading.svelte';
+  import Enhancing from './enhancing.svelte';
+  import Errored from '../errored.svelte';
+  import Enhanced from './enhanced.svelte';
   import { AicousticsApi } from '$lib/api/api';
   import Zone from '$lib/ui/display/zone.svelte';
   import { twMerge } from 'tailwind-merge';
@@ -190,18 +190,18 @@
 
 <Zone class={twMerge(borderClass, className, $phase === 'waiting' ? 'p-0' : '')}>
   {#if $phase === 'waiting'}
-    <UploadZone
+    <Upload
       on:accepted={(file) => phase.upload(file.detail)}
       on:rejected={(reason) => phase.reject(reason.detail)}
       bind:isDraggingOver
     />
   {:else if $phase === 'uploading'}
-    <UploadingZone {filename} on:cancel={() => phase.cancel()} />
+    <Uploading {filename} on:cancel={() => phase.cancel()} />
   {:else if $phase === 'enhancing'}
-    <EnhancingZone {filename} on:cancel={() => phase.cancel()} />
+    <Enhancing {filename} on:cancel={() => phase.cancel()} />
   {:else if $phase === 'enhanced'}
-    <EnhancedZone {filename} on:reset={() => phase.reset()} />
+    <Enhanced {filename} on:reset={() => phase.reset()} />
   {:else if $phase === 'errored'}
-    <ErrorZone title={errorTitle} {errorMessage} on:reset={() => phase.reset()} />
+    <Errored title={errorTitle} {errorMessage} on:reset={() => phase.reset()} />
   {/if}
 </Zone>

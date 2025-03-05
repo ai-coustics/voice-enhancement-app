@@ -1,10 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
   import svelteFsm from 'svelte-fsm';
-  import PreviewZone from './preview-zone.svelte';
-  import DownloadZone from './download-zone.svelte';
-  import DownloadingZone from './downloading-zone.svelte';
-  import ErrorZone from '../error-zone.svelte';
+  import Preview from './preview.svelte';
+  import Download from './download.svelte';
+  import Downloading from './downloading.svelte';
+  import Errored from '../errored.svelte';
   import { formatEnhancedFilename, formatModel, formatPercentage } from '$lib/utils/format';
   import Zone from '$lib/ui/display/zone.svelte';
   import { twMerge } from 'tailwind-merge';
@@ -25,7 +25,7 @@
   // --- Internal ---
 
   let container: HTMLElement;
-  let previewZone: PreviewZone;
+  let preview: Preview;
 
   let downloadingMessage = '';
   let downloadUrl: string;
@@ -80,7 +80,7 @@
   async function handleDownload(mix: number) {
     try {
       downloadingMessage = `Generating final audio at ${formatPercentage(mix)} enhancement...`;
-      downloadUrl = await previewZone.generateDownload();
+      downloadUrl = await preview.generateDownload();
       // Check cancellation
       if ($phase !== 'generatingDownload') {
         return;
@@ -110,25 +110,25 @@
 <div class={twMerge('w-full', className)} bind:this={container}>
   <Zone class={twMerge('h-full', borderClass)}>
     <!-- 
-      Do not let PreviewZone get unmounted, just hide it instead when moving to the other phases.
+      Do not let Preview get unmounted, just hide it instead when moving to the other phases.
       Reason being that when the internal players decode the buffers, they get detached and can't
       be reused. So when we return to previewing after a download, we'd get an error about 
       ArrayBuffers being detached if we let it unmount/remount.
     -->
-    <PreviewZone
+    <Preview
       {filename}
       {originalBuffer}
       {enhancedBuffer}
       hide={$phase !== 'previewing'}
-      bind:this={previewZone}
+      bind:this={preview}
       on:download={({ detail: mix }: CustomEvent<number>) => phase.download(mix)}
     />
     {#if $phase === 'generatingDownload'}
-      <DownloadingZone message={downloadingMessage} on:cancel={() => phase.cancel()} />
+      <Downloading message={downloadingMessage} on:cancel={() => phase.cancel()} />
     {:else if $phase === 'downloadReady'}
-      <DownloadZone {downloadUrl} {downloadName} on:reset={() => phase.reset()} />
+      <Download {downloadUrl} {downloadName} on:reset={() => phase.reset()} />
     {:else if $phase === 'errored'}
-      <ErrorZone title={errorTitle} {errorMessage} on:reset={() => phase.reset()} />
+      <Errored title={errorTitle} {errorMessage} on:reset={() => phase.reset()} />
     {/if}
   </Zone>
 </div>

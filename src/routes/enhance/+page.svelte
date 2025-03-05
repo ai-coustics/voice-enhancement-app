@@ -1,6 +1,6 @@
 <script lang="ts">
-  import InputZone from './input-zone/input-zone.svelte';
-  import OutputZone from './output-zone/output-zone.svelte';
+  import InputZone from './input/input-zone.svelte';
+  import OutputZone from './output/output-zone.svelte';
   import ModelZone from './model-zone.svelte';
 
   export let data;

@@ -1,6 +1,5 @@
 <script lang="ts">
   import Spinner from '$lib/ui/display/spinner.svelte';
-  import Link from '$lib/ui/navigation/link.svelte';
   import { createEventDispatcher } from 'svelte';
   import Stepper from './stepper.svelte';
   import Button from '$lib/ui/buttons/button.svelte';
