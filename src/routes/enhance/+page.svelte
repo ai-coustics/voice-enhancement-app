@@ -41,7 +41,7 @@
   <InputZone
     class="mt-12 h-[340px]"
     {model}
-    settings={data.serverSettings}
+    settings={data.settings}
     on:enhanced={handleEnhanced}
     on:reset={handleReset}
   />

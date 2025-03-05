@@ -3,10 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: ${ADAPTER:-node}
       args:
-        - PORT=${PORT}
+        - ADAPTER=${ADAPTER}
     env_file:
       - .env
+    volumes:
+      - type: bind
+        source: ./build
+        target: /app/static
     ports:
       - '${PORT}:${PORT}'
-    restart: unless-stopped

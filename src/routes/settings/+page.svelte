@@ -9,6 +9,6 @@
 
 <div class="mx-auto flex max-w-[800px] flex-col items-center">
   <Zone>
-    <SettingsZone settings={data.serverSettings} />
+    <SettingsZone settings={data.settings} />
   </Zone>
 </div>
