@@ -18,8 +18,6 @@ export class BufferPlayer extends EventTarget {
   private startOffset = 0;
   private cursor = 0;
 
-  private keepAlive = false;
-
   constructor() {
     super();
 
@@ -87,12 +85,9 @@ export class BufferPlayer extends EventTarget {
     this.sourceNode.connect(this.gainNode);
 
     this.sourceNode.onended = () => {
-      if (!this.keepAlive) {
-        this.startTime = -1;
-        this.cursor = 0;
-        this.fsm.end();
-      }
-      this.keepAlive = false;
+      this.startTime = -1;
+      this.cursor = 0;
+      this.fsm.end();
     };
 
     this.startTime = ctx.currentTime;
@@ -151,9 +146,14 @@ export class BufferPlayer extends EventTarget {
   }
 
   private stop() {
-    this.keepAlive = true;
-    this.sourceNode?.stop();
-    this.sourceNode?.disconnect();
-    this.sourceNode = undefined;
+    if (this.sourceNode) {
+      // It's important that we unregister this listener first, because we need to keep
+      // our state alive. Furthermore, whether it's called or not seems to differ between
+      // Safari and Chrome, so we can't rely on it for handling keep alive logic.
+      this.sourceNode.onended = null;
+      this.sourceNode.stop();
+      this.sourceNode?.disconnect();
+      this.sourceNode = undefined;
+    }
   }
 }
