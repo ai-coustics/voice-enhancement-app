@@ -9,7 +9,7 @@
 <DashboardSidebar>
   {#snippet primary()}
     <menu>
-      <MenuItem href="/enhance" currentPage={page.url.pathname === '/enhance'}>
+      <MenuItem href="/enhance" currentPage={page.url.pathname.startsWith('/enhance')}>
         {#snippet icon()}
           <Upload />
         {/snippet}
@@ -17,7 +17,7 @@
           <span>Enhance</span>
         {/snippet}
       </MenuItem>
-      <MenuItem href="/settings" currentPage={page.url.pathname === '/settings'}>
+      <MenuItem href="/settings" currentPage={page.url.pathname.startsWith('/settings')}>
         {#snippet icon()}
           <Settings />
         {/snippet}
