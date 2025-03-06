@@ -21,12 +21,12 @@
 
   async function save(e: Event) {
     try {
+      e.preventDefault();
       if (settings.hasServer) {
         // When running as a node app, we can save settings to our own endpoint.
         await request(window.location.origin, 'server/settings', undefined, local);
       } else {
         // Otherwise, we save to local storage.
-        e.preventDefault();
         localStorage.setItem('apiRoot', local.apiRoot);
         localStorage.setItem('apiKey', local.apiKey);
       }
