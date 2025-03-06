@@ -152,7 +152,7 @@ export class BufferPlayer extends EventTarget {
       // Safari and Chrome, so we can't rely on it for handling keep alive logic.
       this.sourceNode.onended = null;
       this.sourceNode.stop();
-      this.sourceNode?.disconnect();
+      this.sourceNode.disconnect();
       this.sourceNode = undefined;
     }
   }
