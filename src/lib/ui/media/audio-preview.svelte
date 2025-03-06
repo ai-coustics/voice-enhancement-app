@@ -48,10 +48,6 @@
     return fsm;
   }
 
-  export function playbackCursor$(): Readable<number> {
-    return playbackCursor;
-  }
-
   // --- Internal ---
 
   const originalPlayer = new BufferPlayer();
@@ -73,7 +69,7 @@
     }
   }
 
-  function seek(cursor: number) {
+  function seekPlayers(cursor: number) {
     originalPlayer.seek(cursor);
     enhancedPlayer.seek(cursor);
     playbackCursor.set(cursor);
@@ -123,7 +119,7 @@
     },
     paused: {
       play: 'playing',
-      seek
+      seek: seekPlayers
     },
     playing: {
       _enter: () => {
@@ -139,7 +135,7 @@
         clearInterval(playbackCursorTimerId);
         return 'paused';
       },
-      seek,
+      seek: seekPlayers,
       end: () => {
         clearInterval(playbackCursorTimerId);
         playbackCursor.set(0);
@@ -147,7 +143,8 @@
       }
     },
     ended: {
-      play: 'playing'
+      play: 'playing',
+      seek: seekPlayers
     }
   });
 
@@ -189,7 +186,7 @@
         enhancedBuffer={enhancedAudioBuffer}
         {mix}
         playbackCursor={$playbackCursor}
-        onSeek={fsm.seek}
+        onSeek={(pos) => fsm.seek(pos)}
       />
     {/if}
   </div>
