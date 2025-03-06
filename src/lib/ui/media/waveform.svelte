@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
   import { floatEquals } from '$lib/utils/compare';
   import debounce from 'lodash/debounce';
   import { onMount } from 'svelte';
@@ -128,14 +127,13 @@
   });
 
   $effect(() => {
-    if (browser) {
-      const left = originalBuffer
-        ? Math.round((playbackCursor / originalBuffer.duration) * lastDrawnWidth)
-        : 0;
-      const cursorEl = document.getElementById('cursor');
-      if (cursorEl) {
-        cursorEl.style.width = `${left}px`;
-      }
+    const left = originalBuffer
+      ? Math.round((playbackCursor / originalBuffer.duration) * lastDrawnWidth)
+      : 0;
+    const cursorEl = document.getElementById('cursor');
+
+    if (cursorEl) {
+      cursorEl.style.width = `${left}px`;
     }
   });
 </script>
