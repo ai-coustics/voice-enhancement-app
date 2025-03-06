@@ -2,9 +2,14 @@
   import { onMount } from 'svelte';
   import Slider from '../inputs/slider.svelte';
 
-  export let mix: number;
+  interface Props {
+    mix: number;
+  }
 
-  let fader: HTMLDivElement;
+  let { mix = $bindable() }: Props = $props();
+
+  let fader: HTMLDivElement | undefined = $state();
+  let labelStyles = $state('');
 
   // --- Helpers ---
 
@@ -26,36 +31,37 @@
 
   // --- Event handlers ---
 
-  function onInput(e: CustomEvent) {
-    const sliderValue = e.detail;
+  function onInput(sliderValue: number) {
     mix = toLinear(sliderValue);
   }
 
   // --- Lifecycle ---
 
   onMount(() => {
+    if (!fader) return;
     const observer = new ResizeObserver(() => {
       calcLabelPos(mix);
     });
     observer.observe(fader);
     return () => {
-      observer.unobserve(fader);
+      observer.unobserve(fader!);
     };
   });
 
   // --- Reactives ---
 
-  let labelStyles = '';
-  $: mixInPercent = Math.round(mix * 100);
-  $: calcLabelPos(mix);
+  const mixInPercent = $derived(Math.round(mix * 100));
+  $effect(() => {
+    calcLabelPos(mix);
+  });
 </script>
 
 <div class="relative w-full" bind:this={fader}>
   <div id="label" class="absolute font-bold" style={labelStyles}>
     {mixInPercent}%
   </div>
-  <Slider class="mt-[30px] w-full" value={toLog(mix)} on:input={onInput} />
-  <div class="text-mineshaft mt-1 flex justify-between">
+  <Slider class="mt-[30px] w-full" value={toLog(mix)} oninput={onInput} />
+  <div class="mt-1 flex justify-between text-mineshaft">
     <div>Original</div>
     <div>Enhanced</div>
   </div>

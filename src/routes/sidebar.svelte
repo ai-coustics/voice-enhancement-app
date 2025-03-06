@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import Settings from '$lib/ui/icons/settings.svelte';
   import Upload from '$lib/ui/icons/upload.svelte';
   import DashboardSidebar from '$lib/ui/layout/dashboard-sidebar.svelte';
@@ -7,16 +7,28 @@
 </script>
 
 <DashboardSidebar>
-  <menu slot="primary">
-    <MenuItem href="/enhance" currentPage={$page.url.pathname === '/enhance'}>
-      <Upload slot="icon" />
-      <span slot="label">Enhance</span>
-    </MenuItem>
-    <MenuItem href="/settings" currentPage={$page.url.pathname === '/settings'}>
-      <Settings slot="icon" />
-      <span slot="label">Settings</span>
-    </MenuItem>
-  </menu>
+  {#snippet primary()}
+    <menu>
+      <MenuItem href="/enhance" currentPage={page.url.pathname === '/enhance'}>
+        {#snippet icon()}
+          <Upload />
+        {/snippet}
+        {#snippet label()}
+          <span>Enhance</span>
+        {/snippet}
+      </MenuItem>
+      <MenuItem href="/settings" currentPage={page.url.pathname === '/settings'}>
+        {#snippet icon()}
+          <Settings />
+        {/snippet}
+        {#snippet label()}
+          <span>Settings</span>
+        {/snippet}
+      </MenuItem>
+    </menu>
+  {/snippet}
 
-  <menu slot="secondary"></menu>
+  {#snippet secondary()}
+    <menu></menu>
+  {/snippet}
 </DashboardSidebar>

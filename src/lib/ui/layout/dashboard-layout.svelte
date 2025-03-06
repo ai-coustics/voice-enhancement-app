@@ -1,10 +1,18 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import CloseButton from '../buttons/close-button.svelte';
   import MenuButton from '../buttons/menu-button.svelte';
 
-  export let logoUrl: string;
+  interface Props {
+    logoUrl: string;
+    sidebar: Snippet;
+    banner?: Snippet;
+    main: Snippet;
+  }
 
-  let hamburgerMenuOpen = false;
+  const { logoUrl, sidebar, banner, main }: Props = $props();
+
+  let hamburgerMenuOpen = $state(false);
 
   function openMenu() {
     hamburgerMenuOpen = true;
@@ -19,28 +27,28 @@
   <aside class={hamburgerMenuOpen ? 'hamburger-menu-open' : ''}>
     <header>
       <a class="" href="/"><img class="w-[100px]" src={logoUrl} alt="Logo" /></a>
-      <CloseButton on:click={closeMenu} />
+      <CloseButton onclick={closeMenu} />
     </header>
 
-    <!-- on:click closes mobile menu after clicking a menu item -->
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="sidebar-container" on:click={closeMenu}>
+    <!-- onclick closes mobile menu after clicking a menu item -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="sidebar-container" onclick={closeMenu}>
       <a class="logo-in-sidebar" href="/">
         <img class="w-[100px]" src={logoUrl} alt="Logo" />
       </a>
-      <slot name="sidebar" />
+      {@render sidebar()}
     </div>
   </aside>
   <main id="main">
     <header>
       <div class="menu-header">
-        <MenuButton on:click={openMenu} />
+        <MenuButton onclick={openMenu} />
       </div>
-      <slot name="banner" />
+      {@render banner?.()}
     </header>
     <div class="main-wrapper">
-      <slot name="main" />
+      {@render main()}
     </div>
   </main>
 </div>
@@ -52,7 +60,7 @@
   }
 
   aside {
-    @apply flex flex-col bg-misty-rose overflow-y-auto;
+    @apply flex flex-col overflow-y-auto bg-misty-rose;
   }
 
   aside header {
@@ -60,11 +68,11 @@
   }
 
   .sidebar-container {
-    @apply flex flex-col h-full;
+    @apply flex h-full flex-col;
   }
 
   .logo-in-sidebar {
-    @apply self-center mt-5 mb-10;
+    @apply mb-10 mt-5 self-center;
   }
 
   main {
@@ -72,7 +80,7 @@
   }
 
   main header {
-    @apply sticky top-0 w-full z-10;
+    @apply sticky top-0 z-10 w-full;
   }
 
   main .menu-header {
@@ -87,7 +95,7 @@
 
     aside {
       /* Opacity 0 is needed to prevent the drop shadow from bleeding over when closed */
-      @apply absolute w-[300px] top-0 left-0 bottom-0 transition-all duration-500 z-30 shadow-[10px_10px_90px_90px_#00000040] -translate-x-full opacity-0;
+      @apply absolute bottom-0 left-0 top-0 z-30 w-[300px] -translate-x-full opacity-0 shadow-[10px_10px_90px_90px_#00000040] transition-all duration-500;
     }
 
     aside.hamburger-menu-open {

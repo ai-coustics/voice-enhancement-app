@@ -1,15 +1,15 @@
 <script lang="ts">
   import Icon from '$lib/ui/display/icon.svelte';
-  import { createEventDispatcher } from 'svelte';
   import Button from '$lib/ui/buttons/button.svelte';
   import Error from '$lib/ui/icons/error.svelte';
 
-  export let title: string;
-  export let errorMessage: string;
+  interface Props {
+    title: string;
+    errorMessage: string;
+    onReset: () => void;
+  }
 
-  const dispatch = createEventDispatcher<{
-    reset: null;
-  }>();
+  const { title, errorMessage, onReset }: Props = $props();
 </script>
 
 <div class="flex flex-col items-center gap-12 text-center">
@@ -24,5 +24,5 @@
     </p>
   </div>
 
-  <Button size="sm" on:click={() => dispatch('reset')}>Go back</Button>
+  <Button size="sm" onclick={onReset}>Go back</Button>
 </div>

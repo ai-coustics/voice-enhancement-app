@@ -2,7 +2,7 @@
   import Zone from '$lib/ui/display/zone.svelte';
   import Settings from './settings.svelte';
 
-  export let data;
+  const { data } = $props();
 </script>
 
 <h1 class="mb-12">Settings</h1>

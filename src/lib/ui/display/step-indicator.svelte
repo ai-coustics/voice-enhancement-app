@@ -1,9 +1,13 @@
 <script lang="ts">
-  export let steps: string[];
-  export let current: number = 0;
-  export let stepWidth: number = 200;
-
   const circleRadius = 10;
+
+  interface Props {
+    steps: string[];
+    current?: number;
+    stepWidth?: number;
+  }
+
+  const { steps, current = 0, stepWidth = 200 }: Props = $props();
 </script>
 
 <div class="flex flex-row">

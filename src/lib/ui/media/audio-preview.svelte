@@ -1,11 +1,11 @@
-<script context="module" lang="ts">
+<script module lang="ts">
   export type AudioPreviewState = 'initial' | 'loading' | 'paused' | 'playing' | 'ended';
 </script>
 
 <script lang="ts">
   import { BufferPlayer } from '$lib/media/players/buffer-player';
   import { mixToWav } from '$lib/media/mix-audio';
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import svelteFsm from 'svelte-fsm';
   import { derived, writable, type Readable } from 'svelte/store';
   import Crossfader from '$lib/ui/media/crossfader.svelte';
@@ -18,13 +18,14 @@
 
   // --- Exports ---
 
-  export let originalBuffer: ArrayBuffer;
-  export let enhancedBuffer: ArrayBuffer;
-  export let mix: number;
+  interface Props {
+    originalBuffer: ArrayBuffer;
+    enhancedBuffer: ArrayBuffer;
+    mix: number;
+    onLoad: () => void;
+  }
 
-  const dispatch = createEventDispatcher<{
-    load: void;
-  }>();
+  let { originalBuffer, enhancedBuffer, mix = $bindable(), onLoad }: Props = $props();
 
   export async function mixPlayerBuffers(): Promise<string> {
     const original = originalPlayer.getBuffer();
@@ -57,8 +58,8 @@
   const enhancedPlayer = new BufferPlayer();
   let unsubscribeFromPlayers: () => void | undefined;
 
-  let originalAudioBuffer: AudioBuffer | undefined;
-  let enhancedAudioBuffer: AudioBuffer | undefined;
+  let originalAudioBuffer: AudioBuffer | undefined = $state();
+  let enhancedAudioBuffer: AudioBuffer | undefined = $state();
 
   let playbackCursor = writable(0); // in seconds
   let playbackCursorTimerId: number;
@@ -72,8 +73,7 @@
     }
   }
 
-  function seek(position: CustomEvent<number>) {
-    const cursor = position.detail;
+  function seek(cursor: number) {
     originalPlayer.seek(cursor);
     enhancedPlayer.seek(cursor);
     playbackCursor.set(cursor);
@@ -117,7 +117,7 @@
       _exit: () => {
         originalAudioBuffer = originalPlayer.getBuffer();
         enhancedAudioBuffer = enhancedPlayer.getBuffer();
-        dispatch('load');
+        onLoad();
       },
       pause: 'paused'
     },
@@ -160,14 +160,14 @@
     return unmount;
   });
 
-  $: {
+  $effect(() => {
     enhancedPlayer.setGain(mix);
     originalPlayer.setGain(1 - mix);
-  }
+  });
 
-  $: {
+  $effect(() => {
     console.debug('AudioPreview State:', $fsm);
-  }
+  });
 </script>
 
 <div class="flex flex-col gap-5">
@@ -178,7 +178,7 @@
         : $fsm === 'playing'
           ? 'playing'
           : 'paused'}
-      on:click={() => {
+      onclick={() => {
         if ($fsm === 'playing') fsm.pause();
         else fsm.play();
       }}
@@ -189,7 +189,7 @@
         enhancedBuffer={enhancedAudioBuffer}
         {mix}
         playbackCursor={$playbackCursor}
-        on:seek={fsm.seek}
+        onSeek={fsm.seek}
       />
     {/if}
   </div>

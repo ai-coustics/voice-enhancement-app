@@ -3,14 +3,27 @@
   import type { TShirtSize } from '$lib/utils/size';
   import preset from '$lib/ui/tailwind-preset';
   import Spinner from '$lib/ui/display/spinner.svelte';
+  import type { Snippet } from 'svelte';
+  import type { HTMLButtonAttributes } from 'svelte/elements';
 
-  let className = '';
-  export { className as class };
-  export let role: 'primary' | 'secondary' | 'accent' = 'primary';
-  export let size: Extract<TShirtSize, 'sm' | 'md'> = 'md';
-  export let disabled = false;
-  export let isLoading = false;
-  export let loadingCircleColor: string | undefined = undefined; // Hack
+  export interface Props extends HTMLButtonAttributes {
+    role?: 'primary' | 'secondary' | 'accent';
+    size?: Extract<TShirtSize, 'sm' | 'md'>;
+    isLoading?: boolean;
+    loadingCircleColor?: string | undefined; // Hack
+    children: Snippet;
+  }
+
+  const {
+    class: className = '',
+    role = 'primary',
+    size = 'md',
+    disabled = false,
+    isLoading = false,
+    loadingCircleColor = undefined,
+    children,
+    ...rest
+  }: Props = $props();
 
   const isPrimary = role === 'primary';
 
@@ -40,11 +53,10 @@
       : isPrimary
         ? primaryEnabledStyles
         : secondaryEnabledStyles,
-    className
+    className as string
   )}
   disabled={disabled || isLoading}
-  on:click
-  {...$$restProps}
+  {...rest}
 >
   {#if isLoading}
     <Spinner
@@ -56,6 +68,6 @@
       size={size === 'sm' ? 16 : 20}
     />
   {:else}
-    <slot />
+    {@render children()}
   {/if}
 </button>

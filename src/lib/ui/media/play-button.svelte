@@ -1,16 +1,16 @@
 <script lang="ts">
   import PauseIcon from '$lib/ui/icons/pause.svelte';
   import PlayIcon from '$lib/ui/icons/play.svelte';
-  import { createEventDispatcher } from 'svelte';
   import Button from '../buttons/button.svelte';
   import Spinner from '../display/spinner.svelte';
 
-  export let state: 'loading' | 'playing' | 'paused';
-  export let disabled = false;
+  interface Props {
+    state: 'loading' | 'playing' | 'paused';
+    disabled?: boolean;
+    onclick: () => void;
+  }
 
-  const dispatch = createEventDispatcher<{
-    click: void;
-  }>();
+  const { state, disabled = false, onclick }: Props = $props();
 </script>
 
 <Button
@@ -20,7 +20,7 @@
     {disabled
     ? 'border-sleet bg-sand'
     : 'cursor-pointer border-misty-rose bg-flamingo hover:border-[hsl(228,50%,90%)]'}"
-  on:click={() => dispatch('click')}
+  {onclick}
 >
   {#if state === 'loading'}
     <div>

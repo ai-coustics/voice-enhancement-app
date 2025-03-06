@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import Icon from '$lib/ui/display/icon.svelte';
   import Button from '$lib/ui/buttons/button.svelte';
   import AudioPreview from '$lib/ui/media/audio-preview.svelte';
@@ -7,28 +6,27 @@
   import Information from '$lib/ui/icons/information.svelte';
   import { twMerge } from 'tailwind-merge';
 
-  // --- Exports ---
+  interface Props {
+    filename: string;
+    originalBuffer: ArrayBuffer;
+    enhancedBuffer: ArrayBuffer;
+    hide?: boolean;
+    onDownload: (mix: number) => void;
+  }
 
-  export let filename: string;
-  export let originalBuffer: ArrayBuffer;
-  export let enhancedBuffer: ArrayBuffer;
-  export let hide = false;
-
-  const dispatch = createEventDispatcher<{
-    download: number;
-  }>();
+  const { filename, originalBuffer, enhancedBuffer, hide = false, onDownload }: Props = $props();
 
   export async function generateDownload(): Promise<string> {
+    if (!audioPreview) return '';
     const downloadUrl = await audioPreview.mixPlayerBuffers();
     return downloadUrl;
   }
 
-  // --- Internal ---
+  let audioPreview: AudioPreview | undefined;
 
   // The mix expressed as a number between 0 and 1
-  let mix = 0.5;
-  let isLoading = true;
-  let audioPreview: AudioPreview;
+  let mix = $state(0.5);
+  let isLoading = $state(true);
 </script>
 
 <div class={twMerge('flex w-full flex-col items-center', hide && 'hidden')}>
@@ -45,7 +43,7 @@
       {originalBuffer}
       {enhancedBuffer}
       bind:mix
-      on:load={() => {
+      onLoad={() => {
         isLoading = false;
       }}
       bind:this={audioPreview}
@@ -65,8 +63,10 @@
   <Button
     disabled={isLoading}
     size="sm"
-    on:click={() => {
-      dispatch('download', mix);
-    }}>Download</Button
+    onclick={() => {
+      onDownload(mix);
+    }}
   >
+    Download
+  </Button>
 </div>

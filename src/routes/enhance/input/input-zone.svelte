@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import svelteFsm from 'svelte-fsm';
   import Upload from './upload.svelte';
   import Uploading from './uploading.svelte';
@@ -13,31 +12,35 @@
 
   // --- Exports ---
 
-  let className = '';
-  export { className as class };
-  export let model: string;
-  export let settings: {
-    apiRoot: string;
-    apiKey: string;
-  };
+  interface Props {
+    class?: string;
+    model: string;
+    settings: {
+      apiRoot: string;
+      apiKey: string;
+    };
+    onEnhanced: (args: {
+      filename: string;
+      originalBuffer: ArrayBuffer;
+      enhancedBuffer: ArrayBuffer;
+    }) => void;
+    onReset: () => void;
+  }
 
-  const dispatch = createEventDispatcher<{
-    enhanced: { filename: string; originalBuffer: ArrayBuffer; enhancedBuffer: ArrayBuffer };
-    reset: void;
-  }>();
+  const { class: className = '', model, settings, onEnhanced, onReset }: Props = $props();
 
   // --- Internal ---
 
   const api = new AicousticsApi(settings.apiRoot, settings.apiKey);
 
-  let filename = '';
+  let filename = $state('');
   let originalBuffer: ArrayBuffer;
   let enhancedBuffer: ArrayBuffer;
 
   let timerId: number;
-  let errorTitle = '';
-  let errorMessage = '';
-  let isDraggingOver = false;
+  let errorTitle = $state('');
+  let errorMessage = $state('');
+  let isDraggingOver = $state(false);
 
   let phase = svelteFsm('waiting', {
     waiting: {
@@ -79,7 +82,7 @@
     },
     enhanced: {
       reset: () => {
-        dispatch('reset');
+        onReset();
         return 'waiting';
       }
     },
@@ -136,7 +139,7 @@
           enhancedBuffer = await api.download(generatedName);
           console.debug(`Enhancement succeeded`);
           phase.complete();
-          dispatch('enhanced', { filename, originalBuffer, enhancedBuffer });
+          onEnhanced({ filename, originalBuffer, enhancedBuffer });
         } catch (err: unknown) {
           if (err instanceof RequestError) {
             const error = err as RequestError;
@@ -185,23 +188,23 @@
 
   // --- Reactives ---
 
-  $: borderClass = getBorderClass($phase, isDraggingOver);
+  let borderClass = $derived(getBorderClass($phase, isDraggingOver));
 </script>
 
 <Zone class={twMerge(borderClass, className, $phase === 'waiting' ? 'p-0' : '')}>
   {#if $phase === 'waiting'}
     <Upload
-      on:accepted={(file) => phase.upload(file.detail)}
-      on:rejected={(reason) => phase.reject(reason.detail)}
+      onAccepted={(file) => phase.upload(file)}
+      onRejected={(reason) => phase.reject(reason)}
       bind:isDraggingOver
     />
   {:else if $phase === 'uploading'}
-    <Uploading {filename} on:cancel={() => phase.cancel()} />
+    <Uploading {filename} onCancel={() => phase.cancel()} />
   {:else if $phase === 'enhancing'}
-    <Enhancing {filename} on:cancel={() => phase.cancel()} />
+    <Enhancing {filename} onCancel={() => phase.cancel()} />
   {:else if $phase === 'enhanced'}
-    <Enhanced {filename} on:reset={() => phase.reset()} />
+    <Enhanced {filename} onReset={() => phase.reset()} />
   {:else if $phase === 'errored'}
-    <Errored title={errorTitle} {errorMessage} on:reset={() => phase.reset()} />
+    <Errored title={errorTitle} {errorMessage} onReset={() => phase.reset()} />
   {/if}
 </Zone>

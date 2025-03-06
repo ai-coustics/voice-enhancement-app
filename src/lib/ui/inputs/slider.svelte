@@ -1,31 +1,29 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import preset from '$lib/ui/tailwind-preset';
 
-  let className = '';
-  export { className as class };
-  export let value = 0.5;
-
-  const dispatch = createEventDispatcher<{
-    input: number;
-  }>();
-
-  function onInput(e: Event) {
-    const inputEl = e.target as HTMLInputElement;
-    const v = Number(inputEl.value);
-    dispatch('input', v);
+  interface Props {
+    class?: string;
+    value?: number;
+    oninput?: (value: number) => void;
   }
 
-  let inputStyles = '';
-  $: {
-    // It's not possible to style the left side of the track separately from the right in Webkit,
-    // so we fake it with a dynamically updating gradient.
-    inputStyles = `background: linear-gradient(
+  let { class: className = '', value = $bindable(0.5), oninput }: Props = $props();
+
+  function handleInput(e: Event) {
+    const inputEl = e.target as HTMLInputElement;
+    const v = Number(inputEl.value);
+    oninput?.(v);
+  }
+
+  // It's not possible to style the left side of the track separately from the right in Webkit,
+  // so we fake it with a dynamically updating gradient.
+  const inputStyles = $derived(
+    `background: linear-gradient(
       to right, 
       ${preset.theme.colors.flamingo} ${100 * value}%,
       ${preset.theme.colors.sleet} ${100 * value}%
-    )`;
-  }
+    )`
+  );
 </script>
 
 <input
@@ -35,7 +33,7 @@
   max="1"
   step="any"
   bind:value
-  on:input={onInput}
+  oninput={handleInput}
   style={inputStyles}
 />
 

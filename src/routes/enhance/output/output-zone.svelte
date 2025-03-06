@@ -11,27 +11,34 @@
 
   // --- Exports ---
 
-  let className = '';
-  export { className as class };
-  export let filename: string;
-  export let originalBuffer: ArrayBuffer;
-  export let enhancedBuffer: ArrayBuffer;
-  export let model: string;
+  interface Props {
+    class?: string;
+    filename: string;
+    originalBuffer: ArrayBuffer;
+    enhancedBuffer: ArrayBuffer;
+    model: string;
+    onReset: () => void;
+  }
 
-  const dispatch = createEventDispatcher<{
-    reset: void;
-  }>();
+  const {
+    class: className = '',
+    filename,
+    originalBuffer,
+    enhancedBuffer,
+    model,
+    onReset
+  }: Props = $props();
 
   // --- Internal ---
 
-  let container: HTMLElement;
-  let preview: Preview;
+  let container: HTMLElement | undefined;
+  let preview: Preview | undefined;
 
-  let downloadingMessage = '';
-  let downloadUrl: string;
-  let downloadName: string;
-  let errorTitle = '';
-  let errorMessage = '';
+  let downloadingMessage = $state('');
+  let downloadUrl = $state('');
+  let downloadName = $state('');
+  let errorTitle = $state('');
+  let errorMessage = $state('');
 
   let phase = svelteFsm('previewing', {
     previewing: {
@@ -53,7 +60,7 @@
     },
     errored: {
       reset: () => {
-        dispatch('reset');
+        onReset();
         return 'previewing';
       }
     }
@@ -80,7 +87,7 @@
   async function handleDownload(mix: number) {
     try {
       downloadingMessage = `Generating final audio at ${formatPercentage(mix)} enhancement...`;
-      downloadUrl = await preview.generateDownload();
+      downloadUrl = (await preview?.generateDownload()) || '';
       // Check cancellation
       if ($phase !== 'generatingDownload') {
         return;
@@ -99,12 +106,12 @@
   // --- Lifecycle ---
 
   onMount(() => {
-    container.scrollIntoView({ behavior: 'smooth' });
+    container?.scrollIntoView({ behavior: 'smooth' });
   });
 
   // --- Reactives ---
 
-  $: borderClass = getBorderClass($phase);
+  const borderClass = $derived(getBorderClass($phase));
 </script>
 
 <div class={twMerge('w-full', className)} bind:this={container}>
@@ -121,14 +128,19 @@
       {enhancedBuffer}
       hide={$phase !== 'previewing'}
       bind:this={preview}
-      on:download={({ detail: mix }: CustomEvent<number>) => phase.download(mix)}
+      onDownload={(mix: number) => phase.download(mix)}
     />
     {#if $phase === 'generatingDownload'}
-      <Downloading message={downloadingMessage} on:cancel={() => phase.cancel()} />
+      <Downloading message={downloadingMessage} onCancel={() => phase.cancel()} />
     {:else if $phase === 'downloadReady'}
-      <Download {downloadUrl} {downloadName} on:reset={() => phase.reset()} />
+      <Download
+        {downloadUrl}
+        {downloadName}
+        onDownloaded={() => phase.complete()}
+        onReset={() => phase.reset()}
+      />
     {:else if $phase === 'errored'}
-      <Errored title={errorTitle} {errorMessage} on:reset={() => phase.reset()} />
+      <Errored title={errorTitle} {errorMessage} onReset={() => phase.reset()} />
     {/if}
   </Zone>
 </div>

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import Dropzone from 'svelte-file-dropzone';
   import Icon from '$lib/ui/display/icon.svelte';
   import Button from '$lib/ui/buttons/button.svelte';
@@ -7,14 +6,13 @@
   import Upload from '$lib/ui/icons/upload.svelte';
   import { ALLOWED_FILE_TYPES, MAX_UPLOAD_DURATION } from '../../../constants';
 
-  // --- Exports ---
+  interface Props {
+    isDraggingOver?: boolean;
+    onAccepted: (file: File) => void;
+    onRejected: (reason: string) => void;
+  }
 
-  export let isDraggingOver = false;
-
-  const dispatch = createEventDispatcher<{
-    accepted: File;
-    rejected: string;
-  }>();
+  let { isDraggingOver = $bindable(false), onAccepted, onRejected }: Props = $props();
 
   async function getTotalDuration(files: File[]) {
     const promises = Array.from(files).map((file) => {
@@ -48,7 +46,7 @@
       } else {
         reason = "Couldn't process file. Please try a different one.";
       }
-      dispatch('rejected', reason);
+      onRejected(reason);
       return;
     }
 
@@ -59,15 +57,14 @@
 
     const totalDuration = await getTotalDuration(file);
     if (totalDuration > MAX_UPLOAD_DURATION) {
-      dispatch(
-        'rejected',
+      onRejected(
         `The duration of the selected file is ${formatDuration(totalDuration, 'h:m:s')}, ` +
           `which exceeds the maximum upload limit of ${formatDuration(MAX_UPLOAD_DURATION, 'h:m:s')}.`
       );
       return;
     }
 
-    dispatch('accepted', file);
+    onAccepted(file);
   }
 </script>
 

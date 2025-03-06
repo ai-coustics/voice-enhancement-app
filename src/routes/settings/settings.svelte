@@ -4,16 +4,20 @@
   import { request } from '$lib/api/request';
   import { invalidateAll } from '$app/navigation';
 
-  export let settings: {
-    apiRoot: string;
-    apiKey: string;
-    hasServer: boolean;
-  };
+  interface Props {
+    settings: {
+      apiRoot: string;
+      apiKey: string;
+      hasServer: boolean;
+    };
+  }
 
-  let local = {
+  const { settings }: Props = $props();
+
+  let local = $state({
     apiRoot: settings.apiRoot,
     apiKey: settings.apiKey
-  };
+  });
 
   async function save(e: Event) {
     try {
@@ -37,6 +41,6 @@
   <div class="flex flex-col items-start">
     <TextInputField name="API Root" bind:value={local.apiRoot} class="mt-0 w-full" />
     <TextInputField name="API Key" bind:value={local.apiKey} class="mb-0 w-full" />
-    <Button size="sm" class="mt-12 min-w-[100px]" on:click={save}>Save</Button>
+    <Button size="sm" class="mt-12 min-w-[100px]" onclick={save}>Save</Button>
   </div>
 </form>

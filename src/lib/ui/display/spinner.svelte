@@ -1,11 +1,21 @@
-<script>
+<script lang="ts">
   import preset from '$lib/ui/tailwind-preset';
 
-  export let color = preset.theme.colors['salmon'];
-  export let unit = 'px';
-  export let duration = '0.75s';
-  export let size = 60;
-  export let pause = false;
+  interface Props {
+    color?: any;
+    unit?: string;
+    duration?: string;
+    size?: number;
+    pause?: boolean;
+  }
+
+  const {
+    color = preset.theme.colors['salmon'],
+    unit = 'px',
+    duration = '0.75s',
+    size = 60,
+    pause = false
+  }: Props = $props();
 </script>
 
 <div

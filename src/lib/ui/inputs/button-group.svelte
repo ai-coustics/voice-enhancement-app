@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import type { TShirtSize } from '$lib/utils/size.js';
   import { createToggleGroup, createSync } from '@melt-ui/svelte';
-  import { createEventDispatcher } from 'svelte';
+  import { type Snippet } from 'svelte';
   import { twMerge } from 'tailwind-merge';
 
   type Option = {
@@ -10,15 +12,27 @@
     description?: string;
   };
 
-  let className = '';
-  export { className as class };
-  export let size: Extract<TShirtSize, 'sm' | 'md'> = 'md';
-  export let variant: 'bar' | 'well' = 'bar';
-  export let name: string | undefined = undefined;
-  export let options: Array<Option & any>;
-  export let value: string | string[];
+  interface Props {
+    class?: string;
+    size?: Extract<TShirtSize, 'sm' | 'md'>;
+    variant?: 'bar' | 'well';
+    name?: string | undefined;
+    options: Array<Option & any>;
+    value: string | string[];
+    onChange?: (value: string | string[]) => void;
+    children?: Snippet<[any]>;
+  }
 
-  const dispatch = createEventDispatcher<{ change: string | string[] }>();
+  let {
+    class: className = '',
+    size = 'md',
+    variant = 'bar',
+    name = undefined,
+    options,
+    value = $bindable(),
+    onChange,
+    children
+  }: Props = $props();
 
   const empty = Array.isArray(value) ? [] : '';
 
@@ -28,9 +42,9 @@
   } = createToggleGroup({
     type: Array.isArray(value) ? 'multiple' : 'single',
     loop: false,
-    onValueChange: v => {
+    onValueChange: (v) => {
       if (v.next !== v.curr) {
-        dispatch('change', v.next ?? empty);
+        onChange?.(v.next ?? empty);
       }
       return v.next;
     }
@@ -38,7 +52,9 @@
   const { value: valueStore } = states;
 
   const sync = createSync(states);
-  $: sync.value(value, v => (value = v ?? empty));
+  run(() => {
+    sync.value(value, (v) => (value = v ?? empty));
+  });
 </script>
 
 <fieldset {...$root} use:root class={twMerge('group', variant, size, className)}>
@@ -52,9 +68,11 @@
       class={twMerge('option', variant, size)}
       title={option.description}
     >
-      <slot option={{ ...option, isPressed }}>
+      {#if children}
+        {@render children({ option: { ...option, isPressed } })}
+      {:else}
         {option.label}
-      </slot>
+      {/if}
     </button>
   {/each}
 
@@ -92,7 +110,7 @@
   /* Bar */
 
   .group.bar {
-    @apply flex flex-col lg:flex-row items-stretch rounded-lg border border-cloud shadow-sm overflow-hidden;
+    @apply flex flex-col items-stretch overflow-hidden rounded-lg border border-cloud shadow-sm lg:flex-row;
   }
 
   .option.bar {
@@ -100,7 +118,7 @@
   }
 
   .option.bar:not(:first-child) {
-    @apply border-t lg:border-t-0 lg:border-l border-cloud;
+    @apply border-t border-cloud lg:border-l lg:border-t-0;
   }
 
   .option.bar[data-state='on'] {
@@ -122,7 +140,7 @@
   }
 
   .option.well {
-    @apply border border-cloud hover:border-salmon text-black rounded-lg font-medium shadow-sm;
+    @apply rounded-lg border border-cloud font-medium text-black shadow-sm hover:border-salmon;
   }
   .option.well[data-state='on'] {
     @apply outline outline-[3px] outline-salmon;

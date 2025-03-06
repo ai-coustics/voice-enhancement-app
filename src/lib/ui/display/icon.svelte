@@ -1,14 +1,18 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import type { TShirtSize } from '../../utils/size.js';
 
-  export let size: TShirtSize | undefined = undefined;
+  interface Props {
+    size?: TShirtSize | undefined;
+    class?: string;
+    children: Snippet;
+  }
 
-  let className = '';
-  export { className as class };
+  const { size = undefined, class: className = '', children }: Props = $props();
 </script>
 
 <div class={['icon', size ?? '', className].join(' ')}>
-  <slot />
+  {@render children?.()}
 </div>
 
 <style lang="postcss">

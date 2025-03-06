@@ -2,19 +2,32 @@
   import { twMerge } from 'tailwind-merge';
   import Icon from '../display/icon.svelte';
   import Link from './link.svelte';
+  import type { Props as LinkProps } from './link.svelte';
+  import type { Snippet } from 'svelte';
 
-  let className = '';
-  export { className as class };
-  export let disabled = false;
-  export let currentPage = false;
+  interface Props extends Omit<LinkProps, 'children'> {
+    disabled?: boolean;
+    currentPage?: boolean;
+    icon: Snippet;
+    label: Snippet;
+  }
+
+  const {
+    class: className = '',
+    disabled = false,
+    currentPage = false,
+    icon,
+    label,
+    ...rest
+  }: Props = $props();
 </script>
 
 <li class={twMerge('menu-item ', className)} class:disabled class:currentPage>
-  <Link role="nav" {...$$restProps} on:click>
+  <Link role="nav" {...rest}>
     <Icon size="xs">
-      <slot name="icon" />
+      {@render icon()}
     </Icon>
-    <slot name="label" />
+    {@render label()}
   </Link>
 </li>
 

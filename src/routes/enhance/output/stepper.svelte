@@ -1,7 +1,11 @@
 <script lang="ts">
   import StepIndicator from '$lib/ui/display/step-indicator.svelte';
 
-  export let current: number;
+  interface Props {
+    current: number;
+  }
+
+  const { current }: Props = $props();
 </script>
 
 <div class="mt-6">

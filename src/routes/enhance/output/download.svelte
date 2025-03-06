@@ -1,22 +1,18 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import Icon from '$lib/ui/display/icon.svelte';
   import Link from '$lib/ui/navigation/link.svelte';
   import Download from '$lib/ui/icons/download.svelte';
   import Button from '$lib/ui/buttons/button.svelte';
   import Stepper from './stepper.svelte';
 
-  // --- Exports ---
+  interface Props {
+    downloadUrl: string;
+    downloadName: string;
+    onDownloaded: () => void;
+    onReset: () => void;
+  }
 
-  export let downloadUrl: string;
-  export let downloadName: string;
-
-  const dispatch = createEventDispatcher<{
-    downloaded: void;
-    reset: void;
-  }>();
-
-  // --- Internal ---
+  const { downloadUrl, downloadName, onDownloaded, onReset }: Props = $props();
 </script>
 
 <div class="flex flex-col items-center gap-12 text-center">
@@ -29,9 +25,7 @@
     href={downloadUrl}
     download={downloadName}
     target="new-tab"
-    on:click={() => {
-      dispatch('downloaded');
-    }}
+    onclick={onDownloaded}
   >
     <p class="mb-3">Download</p>
     <Icon size="xl" class="mb-1">
@@ -42,7 +36,5 @@
     </p>
   </Link>
 
-  <Button role="secondary" size="sm" class="mt-4" on:click={() => dispatch('reset')}
-    >Back to preview</Button
-  >
+  <Button role="secondary" size="sm" class="mt-4" onclick={onReset}>Back to preview</Button>
 </div>

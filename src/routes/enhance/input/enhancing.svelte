@@ -1,14 +1,14 @@
 <script lang="ts">
   import Spinner from '$lib/ui/display/spinner.svelte';
-  import { createEventDispatcher } from 'svelte';
   import Stepper from './stepper.svelte';
   import Button from '$lib/ui/buttons/button.svelte';
 
-  export let filename: string;
+  interface Props {
+    filename: string;
+    onCancel: () => void;
+  }
 
-  const dispatch = createEventDispatcher<{
-    cancel: void;
-  }>();
+  const { filename, onCancel }: Props = $props();
 </script>
 
 <div class="flex flex-col items-center gap-12 text-center">
@@ -22,5 +22,5 @@
     </div>
     <p class="text-mineshaft">This might take a few minutes.</p>
   </div>
-  <Button role="secondary" size="sm" on:click={() => dispatch('cancel')}>Cancel</Button>
+  <Button role="secondary" size="sm" onclick={onCancel}>Cancel</Button>
 </div>

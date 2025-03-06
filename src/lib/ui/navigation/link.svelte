@@ -2,15 +2,31 @@
   import { twMerge } from 'tailwind-merge';
   import preset from '../tailwind-preset';
   import Spinner from '../display/spinner.svelte';
+  import type { Snippet } from 'svelte';
 
-  let className = '';
-  export { className as class };
-  export let href: string = '';
-  export let role: 'inline' | 'nav' = 'inline';
-  export let target: 'same-tab' | 'new-tab' = 'same-tab';
-  export let reload = false;
-  export let isLoading = false;
-  export let download: string | undefined = undefined;
+  export interface Props {
+    class?: string;
+    href?: string;
+    role?: 'inline' | 'nav';
+    target?: 'same-tab' | 'new-tab';
+    reload?: boolean;
+    isLoading?: boolean;
+    download?: string | undefined;
+    onclick?: () => void;
+    children: Snippet;
+  }
+
+  const {
+    class: className = '',
+    href = '',
+    role = 'inline',
+    target = 'same-tab',
+    reload = false,
+    isLoading = false,
+    download = undefined,
+    onclick,
+    children
+  }: Props = $props();
 </script>
 
 <svelte:element
@@ -25,9 +41,9 @@
     `inline-flex items-center ${role === 'inline' ? 'text-royal-blue' : 'text-mineshaft'} hover:text-black`,
     className
   )}
-  on:click
+  {onclick}
 >
-  <slot />
+  {@render children()}
   {#if isLoading}
     <span class="ml-3">
       <Spinner color={preset.theme.colors['cobalt']} size={14} />

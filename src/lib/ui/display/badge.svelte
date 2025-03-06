@@ -1,8 +1,15 @@
 <script lang="ts">
-  export let color: string = 'text-black';
-  export let backgroundColor: string = 'bg-sleet';
+  import type { Snippet } from 'svelte';
+
+  interface Props {
+    color?: string;
+    backgroundColor?: string;
+    children: Snippet;
+  }
+
+  const { color = 'text-black', backgroundColor = 'bg-sleet', children }: Props = $props();
 </script>
 
-<span class="inline-block rounded-md {color} {backgroundColor} font-medium text-sm px-2 py-1">
-  <slot />
+<span class="inline-block rounded-md {color} {backgroundColor} px-2 py-1 text-sm font-medium">
+  {@render children()}
 </span>

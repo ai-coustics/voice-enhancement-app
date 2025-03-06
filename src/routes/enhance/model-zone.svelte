@@ -5,9 +5,12 @@
   import Badge from '$lib/ui/display/badge.svelte';
   import Zone from '$lib/ui/display/zone.svelte';
 
-  let className = '';
-  export { className as class };
-  export let model: string;
+  interface Props {
+    class?: string;
+    model: string;
+  }
+
+  let { class: className = '', model = $bindable() }: Props = $props();
 
   const options = [
     {
@@ -26,8 +29,8 @@
     }
   ];
 
-  function handleChange(change: CustomEvent<string | string[]>) {
-    const value = Array.isArray(change.detail) ? change.detail[0] : change.detail;
+  function handleChange(change: string | string[]) {
+    const value = Array.isArray(change) ? change[0] : change;
     model = value;
   }
 </script>
@@ -40,19 +43,21 @@
 
     <h2 class="m-6 text-center font-semibold [word-break:break-word]">1. Select model</h2>
 
-    <ButtonGroup class="w-full" {options} value={model} on:change={handleChange} let:option>
-      <div class="flex flex-col text-left">
-        <div class="mb-2 flex h-[24px] items-center gap-2">
-          <div class="label">
-            {option.label}
+    <ButtonGroup class="w-full" {options} value={model} onChange={handleChange}>
+      {#snippet children({ option })}
+        <div class="flex flex-col text-left">
+          <div class="mb-2 flex h-[24px] items-center gap-2">
+            <div class="label">
+              {option.label}
+            </div>
+            {#if option.isPressed}
+              <Badge backgroundColor="bg-flamingo" color="text-white">Active</Badge>
+            {/if}
           </div>
-          {#if option.isPressed}
-            <Badge backgroundColor="bg-flamingo" color="text-white">Active</Badge>
-          {/if}
+          <p class="tag-line">{option.tagLine}</p>
+          <p class="description">{option.description}</p>
         </div>
-        <p class="tag-line">{option.tagLine}</p>
-        <p class="description">{option.description}</p>
-      </div>
+      {/snippet}
     </ButtonGroup>
   </div>
 </Zone>

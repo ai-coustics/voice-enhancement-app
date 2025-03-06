@@ -2,7 +2,7 @@
   import { browser } from '$app/environment';
   import { floatEquals } from '$lib/utils/compare';
   import debounce from 'lodash/debounce';
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
 
   // --- Constants ---
 
@@ -10,20 +10,21 @@
 
   // --- Exports ---
 
-  export let originalBuffer: AudioBuffer;
-  export let enhancedBuffer: AudioBuffer;
-  export let mix: number;
-  export let playbackCursor = 0; // in seconds
+  interface Props {
+    originalBuffer: AudioBuffer;
+    enhancedBuffer: AudioBuffer;
+    mix: number;
+    playbackCursor?: number; // in seconds
+    onSeek: (position: number) => void;
+  }
 
-  let dispatch = createEventDispatcher<{
-    seek: number;
-  }>();
+  const { originalBuffer, enhancedBuffer, mix, playbackCursor = 0, onSeek }: Props = $props();
 
   // --- Internal ---
 
   let waveformEl: SVGElement | undefined;
   let lastDrawnMix: number = -1;
-  let lastDrawnWidth: number = -1;
+  let lastDrawnWidth: number = $state(-1);
 
   // --- Helpers ---
 
@@ -103,7 +104,7 @@
     const clickedPercentage = (event.x - boundingLeft) / waveformWidth;
     const clickedPosition = originalBuffer.duration * clickedPercentage;
     if (!isNaN(clickedPosition)) {
-      dispatch('seek', clickedPosition);
+      onSeek(clickedPosition);
     }
   }
 
@@ -122,11 +123,11 @@
 
   // --- Reactives ---
 
-  $: {
+  $effect(() => {
     drawWaveformDebounced(mix);
-  }
+  });
 
-  $: {
+  $effect(() => {
     if (browser) {
       const left = originalBuffer
         ? Math.round((playbackCursor / originalBuffer.duration) * lastDrawnWidth)
@@ -136,7 +137,7 @@
         cursorEl.style.width = `${left}px`;
       }
     }
-  }
+  });
 </script>
 
 <div class="relative h-full grow py-2">
@@ -144,17 +145,17 @@
 			 does not always take effect, and we get a solid orange block over the waveform. -->
   <div
     id="cursor"
-    class="bg-flamingo pointer-events-none absolute top-0 h-full mix-blend-lighten transition-transform"
+    class="pointer-events-none absolute top-0 h-full bg-flamingo mix-blend-lighten transition-transform"
     style="transform: translate3d(0,0,0); width: 0"
   ></div>
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
   <svg
     id="waveform"
     class="h-full w-full outline-none"
     role="button"
     tabindex="-1"
     bind:this={waveformEl}
-    on:click={handleClick}
+    onclick={handleClick}
   >
     <g></g>
   </svg>

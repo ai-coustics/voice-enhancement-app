@@ -3,28 +3,28 @@
   import OutputZone from './output/output-zone.svelte';
   import ModelZone from './model-zone.svelte';
 
-  export let data;
+  const { data } = $props();
 
   // --- Internal ---
 
-  let model = 'LARK';
-  let filename = '';
+  let model = $state('LARK');
+  let filename = $state('');
+  // svelte-ignore non_reactive_update
   let originalBuffer: ArrayBuffer;
+  // svelte-ignore non_reactive_update
   let enhancedBuffer: ArrayBuffer;
-  let hasEnhanced = false;
+  let hasEnhanced = $state(false);
 
   // -- Helpers ---
 
-  function handleEnhanced(
-    event: CustomEvent<{
-      filename: string;
-      originalBuffer: ArrayBuffer;
-      enhancedBuffer: ArrayBuffer;
-    }>
-  ) {
-    filename = event.detail.filename;
-    originalBuffer = event.detail.originalBuffer;
-    enhancedBuffer = event.detail.enhancedBuffer;
+  function handleEnhanced(args: {
+    filename: string;
+    originalBuffer: ArrayBuffer;
+    enhancedBuffer: ArrayBuffer;
+  }) {
+    filename = args.filename;
+    originalBuffer = args.originalBuffer;
+    enhancedBuffer = args.enhancedBuffer;
     hasEnhanced = true;
   }
 
@@ -42,8 +42,8 @@
     class="mt-12 h-[340px]"
     {model}
     settings={data.settings}
-    on:enhanced={handleEnhanced}
-    on:reset={handleReset}
+    onEnhanced={handleEnhanced}
+    onReset={handleReset}
   />
 
   {#if hasEnhanced}
@@ -53,7 +53,7 @@
       {originalBuffer}
       {enhancedBuffer}
       {model}
-      on:reset={handleReset}
+      onReset={handleReset}
     />
   {/if}
 </div>
